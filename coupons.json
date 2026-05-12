@@ -244,5 +244,23 @@
       "737920050694062080",
       "1382317571306684539"
     ]
+  },
+  "PANCONG1": {
+    "type": "crop",
+    "key": "peach",
+    "amount": 3050,
+    "maxUse": 1,
+    "usedCount": 0,
+    "expireAt": 1778695241705,
+    "usedBy": []
+  },
+  "PANCONG2": {
+    "type": "crop",
+    "key": "shineMuscat",
+    "amount": 10,
+    "maxUse": 1,
+    "usedCount": 0,
+    "expireAt": 1778695274680,
+    "usedBy": []
   }
 }
