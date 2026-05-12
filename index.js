@@ -85,6 +85,191 @@ const shopData = require("./data/shopData.js");
 const petData = require("./data/petData.js");
 const path = require("path");
 
+const USERS_FILE = path.join(__dirname, "users.json");
+const COUPONS_FILE = path.join(__dirname, "coupons.json");
+const MARKET_FILE = path.join(__dirname, "market.json");
+const LOG_DIR = path.join(__dirname, "logs");
+
+const ERROR_LOG_DIR = path.join(LOG_DIR, "errors");
+const COMMAND_LOG_DIR = path.join(LOG_DIR, "commands");
+const USER_LOG_DIR = path.join(LOG_DIR, "users");
+
+const ERROR_LOG_FILE = path.join(ERROR_LOG_DIR, "error.csv");
+const COMMAND_LOG_FILE = path.join(COMMAND_LOG_DIR, "command.csv");
+
+function readJsonFile(filePath, fallback) {
+  try {
+    if (!fs.existsSync(filePath)) return fallback;
+
+    const raw = fs.readFileSync(filePath, "utf8");
+
+    if (!raw.trim()) return fallback;
+
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error(`[JSON 읽기 실패] ${filePath}`, err);
+    return fallback;
+  }
+}
+
+function writeJsonFile(filePath, data) {
+  const tempPath = `${filePath}.tmp`;
+
+  fs.writeFileSync(
+    tempPath,
+    JSON.stringify(data, null, 2)
+  );
+
+  fs.renameSync(tempPath, filePath);
+}
+
+function ensureLogDirs() {
+  if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+  if (!fs.existsSync(ERROR_LOG_DIR)) fs.mkdirSync(ERROR_LOG_DIR, { recursive: true });
+  if (!fs.existsSync(COMMAND_LOG_DIR)) fs.mkdirSync(COMMAND_LOG_DIR, { recursive: true });
+  if (!fs.existsSync(USER_LOG_DIR)) fs.mkdirSync(USER_LOG_DIR, { recursive: true });
+}
+
+function csvSafe(value) {
+  return `"${String(value ?? "").replace(/"/g, '""')}"`;
+}
+
+function appendCsvLine(filePath, headers, values) {
+  ensureLogDirs();
+
+  const exists = fs.existsSync(filePath);
+
+  if (!exists) {
+    fs.appendFileSync(
+  filePath,
+  "\uFEFF" + headers.map(csvSafe).join(",") + "\n",
+  "utf8"
+);
+  }
+
+  fs.appendFileSync(
+  filePath,
+  values.map(csvSafe).join(",") + "\n",
+  "utf8"
+);
+}
+
+function formatLogTime() {
+  const now = new Date();
+
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mi = String(now.getMinutes()).padStart(2, "0");
+  const ss = String(now.getSeconds()).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+function getCommandOptionText(interaction) {
+  try {
+    if (!interaction.options?.data?.length) return "";
+
+    return interaction.options.data
+      .map(option => {
+        if (option.options?.length) {
+          const subOptions = option.options
+            .map(sub => `${sub.name}:${sub.value}`)
+            .join(" ");
+
+          return `${option.name} ${subOptions}`;
+        }
+
+        return `${option.name}:${option.value}`;
+      })
+      .join(" ");
+  } catch {
+    return "";
+  }
+}
+
+function getInteractionLogText(interaction) {
+  if (interaction.isChatInputCommand()) {
+    const optionText = getCommandOptionText(interaction);
+
+    return optionText
+      ? `/${interaction.commandName} ${optionText}`
+      : `/${interaction.commandName}`;
+  }
+
+  if (interaction.isButton()) {
+    return `[버튼 클릭] customId:${interaction.customId}`;
+  }
+
+  if (interaction.isStringSelectMenu()) {
+    return `[선택 메뉴] customId:${interaction.customId} 값:${interaction.values.join(", ")}`;
+  }
+
+  if (interaction.isUserSelectMenu()) {
+    return `[유저 선택] customId:${interaction.customId} 유저:${interaction.values.join(", ")}`;
+  }
+
+  if (interaction.isModalSubmit()) {
+    return `[모달 제출] customId:${interaction.customId}`;
+  }
+
+  return `[기타 상호작용]`;
+}
+
+function logCommandUse(interaction) {
+  try {
+    const time = formatLogTime();
+    const userTag = interaction.user?.tag || interaction.user?.username || "unknown";
+    const userId = interaction.user?.id || "unknown";
+    const guildName = interaction.guild?.name || "DM";
+    const guildId = interaction.guild?.id || "DM";
+    const channelName = interaction.channel?.name || "unknown";
+    const channelId = interaction.channel?.id || "unknown";
+    const logText = getInteractionLogText(interaction);
+
+    appendCsvLine(
+      COMMAND_LOG_FILE,
+      ["시간", "유저태그", "유저ID", "서버", "서버ID", "채널", "채널ID", "사용내용"],
+      [time, userTag, userId, guildName, guildId, channelName, channelId, logText]
+    );
+
+    appendCsvLine(
+      path.join(USER_LOG_DIR, `${userId}.csv`),
+      ["시간", "서버", "채널", "사용내용"],
+      [time, guildName, channelName, logText]
+    );
+  } catch (err) {
+    console.error("명령어 로그 저장 실패:", err);
+  }
+}
+
+function logGameResult(interaction, resultText) {
+  try {
+    const time = formatLogTime();
+    const userTag = interaction.user?.tag || interaction.user?.username || "unknown";
+    const userId = interaction.user?.id || "unknown";
+    const guildName = interaction.guild?.name || "DM";
+    const guildId = interaction.guild?.id || "DM";
+    const channelName = interaction.channel?.name || "unknown";
+    const channelId = interaction.channel?.id || "unknown";
+
+    appendCsvLine(
+      COMMAND_LOG_FILE,
+      ["시간", "유저태그", "유저ID", "서버", "서버ID", "채널", "채널ID", "사용내용"],
+      [time, userTag, userId, guildName, guildId, channelName, channelId, `[결과] ${resultText}`]
+    );
+
+    appendCsvLine(
+      path.join(USER_LOG_DIR, `${userId}.csv`),
+      ["시간", "서버", "채널", "사용내용"],
+      [time, guildName, channelName, `[결과] ${resultText}`]
+    );
+  } catch (err) {
+    console.error("결과 로그 저장 실패:", err);
+  }
+}
+
 /* ================= 윷 상태 & 경로 ================= */
 
 // 말 상태
@@ -586,20 +771,12 @@ function generateMarket() {
   return market;
 }
 
-if (fs.existsSync("./users.json")) {
-  users = JSON.parse(fs.readFileSync("./users.json", "utf8"));
-}
-
-if (fs.existsSync("./coupons.json")) {
-  coupons = JSON.parse(fs.readFileSync("./coupons.json", "utf8"));
-}
-
-if (fs.existsSync("./market.json")) {
-  marketState = JSON.parse(fs.readFileSync("./market.json", "utf8"));
-}
+users = readJsonFile(USERS_FILE, {});
+coupons = readJsonFile(COUPONS_FILE, {});
+marketState = readJsonFile(MARKET_FILE, marketState);
 
 function saveUsers() {
-  fs.writeFileSync("./users.json", JSON.stringify(users, null, 2));
+  writeJsonFile(USERS_FILE, users);
 }
 
 function openQuestionBox() {
@@ -731,11 +908,11 @@ function getPieceCenter(piece, team) {
 }
 
 function saveCoupons() {
-  fs.writeFileSync("./coupons.json", JSON.stringify(coupons, null, 2));
+  writeJsonFile(COUPONS_FILE, coupons);
 }
 
 function saveMarket() {
-  fs.writeFileSync("./market.json", JSON.stringify(marketState, null, 2));
+  writeJsonFile(MARKET_FILE, marketState);
 }
 
 const engraveData = {
@@ -2395,6 +2572,7 @@ client.once("ready", () => {
 });
 
 client.on("interactionCreate", async interaction => {
+    logCommandUse(interaction);
 
   /* ---------------- 쿠폰 모달 제출 ---------------- */
 if (interaction.isModalSubmit() && interaction.customId === "coupon_use_modal") {
@@ -3201,6 +3379,11 @@ if (
 
   saveUsers();
 
+  logGameResult(
+  interaction,
+  `가위바위보 결과: ${resultType} / 선택:${choiceNames[userChoice]} / 봇:${choiceNames[botChoice]} / 배팅:${amount.toLocaleString()}원 / 변동:${moneyChange.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+);
+
   return interaction.update({
     embeds: [embed],
     components: []
@@ -3581,6 +3764,11 @@ if (interaction.customId === "lotto_sheep" || interaction.customId === "lotto_wo
     user.money += reward;
     saveUsers();
 
+    logGameResult(
+  interaction,
+  `복권 결과: 성공 / 선택:${picked} / 보상:${reward.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+);
+
     const successEmbed = new EmbedBuilder()
       .setColor("#22c55e")
       .setTitle("복권성공")
@@ -3601,6 +3789,11 @@ if (interaction.customId === "lotto_sheep" || interaction.customId === "lotto_wo
   }
 
   saveUsers();
+
+  logGameResult(
+  interaction,
+  `복권 결과: 실패 / 선택:${picked} / 잔액:${user.money.toLocaleString()}원`
+);
 
   const failEmbed = new EmbedBuilder()
     .setColor("#ef4444")
@@ -4908,6 +5101,11 @@ if (commandName === "로또") {
 
   saveUsers();
 
+  logGameResult(
+  interaction,
+  `로또 결과: ${result.name} / 배팅:${amount.toLocaleString()}원 / 변동:${profit.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+);
+
   // + 표시
   const sign = profit >= 0 ? "+" : "";
 
@@ -4978,6 +5176,11 @@ if (commandName === "낚시") {
   user.money += changeAmount;
 
   saveUsers();
+
+  logGameResult(
+  interaction,
+  `낚시 결과: ${result.name} / 배팅:${amount.toLocaleString()}원 / 변동:${changeAmount.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+);
 
   // 메시지 금액 치환
   const resultText = result.message.replace(
@@ -5059,6 +5262,11 @@ if (commandName === "배그") {
 
     user.money += reward;
     saveUsers();
+
+    logGameResult(
+  interaction,
+  `배그 결과: ${selectedTier.name} / 배팅:${amount.toLocaleString()}원 / 변동:${reward.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+);
 
     const resultText =
       reward >= 0
@@ -6255,6 +6463,11 @@ if (commandName === "전리품") {
   user.lastLootAt = now;
   saveUsers();
 
+  logGameResult(
+  interaction,
+  `전리품 결과: ${loot.grade} / 획득:${loot.value.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+);
+
   const embed = new EmbedBuilder()
     .setColor(loot.color)
     .setTitle(`**${loot.emoji} ${loot.grade} 전리품**`)
@@ -7391,6 +7604,37 @@ client.on("guildMemberRemove", async (member) => {
     .setThumbnail(member.user.displayAvatarURL({ size: 256 }));
 
   channel.send({ embeds: [embed] });
+});
+
+function writeErrorLog(type, message) {
+  appendCsvLine(
+    ERROR_LOG_FILE,
+    ["시간", "종류", "메시지"],
+    [
+      formatLogTime(),
+      type,
+      String(message)
+        .replace(/\n/g, " ")
+    ]
+  );
+}
+
+process.on("unhandledRejection", (reason) => {
+  console.error(reason);
+
+  writeErrorLog(
+    "UnhandledRejection",
+    reason.stack || reason
+  );
+});
+
+process.on("uncaughtException", (err) => {
+  console.error(err);
+
+  writeErrorLog(
+    "UncaughtException",
+    err.stack || err
+  );
 });
 
 client.login(process.env.TOKEN);

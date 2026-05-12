@@ -934,7 +934,7 @@
     }
   },
   "1496858827822334055": {
-    "money": 1725193,
+    "money": 1726193,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -952,7 +952,7 @@
     "canGatherToday": false,
     "lastAttackDate": "",
     "lastLootAt": 1778609510616,
-    "lastLottoAt": 1778590107140,
+    "lastLottoAt": 1778618251742,
     "bankruptcyCooldown": 1778613104170,
     "attendanceDays": 7,
     "lastAttendanceDate": "2026. 5. 13.",
@@ -981,12 +981,12 @@
       "petFood": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 12.",
+      "lastResetDate": "2026. 5. 13.",
       "engraveStoneBoughtToday": 0,
-      "questionBoxBoughtToday": 2
+      "questionBoxBoughtToday": 0
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 12.",
+      "lastResetDate": "2026. 5. 13.",
       "usedCount": 0,
       "maxCount": 10
     }
