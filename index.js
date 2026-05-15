@@ -4136,7 +4136,6 @@ if (selectedKey === "bankruptcyPaper") {
 
   return interaction.reply({
     embeds: [embed],
-    ephemeral: true
   });
 }
 
