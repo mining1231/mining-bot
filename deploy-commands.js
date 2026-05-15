@@ -353,7 +353,10 @@ new SlashCommandBuilder()
         { name: "딸기", value: "strawberry" },
         { name: "샤인머스켓", value: "shineMuscat" },
         { name: "사과", value: "apple" },
-        { name: "산삼", value: "wildGinseng" }
+        { name: "산삼", value: "wildGinseng" },
+        { name: "파산신청서", value: "bankruptcyPaper" },
+        { name: "밍꾸러미", value: "mingBundle" },
+        { name: "펫먹이", value: "petFood" },
       )
   )
   .addIntegerOption(option =>
@@ -396,6 +399,9 @@ new SlashCommandBuilder()
         { name: "송금 더블 쿠폰", value: "depositDoubleCoupon" },
         { name: "송금 랜덤 쿠폰", value: "randomTransferCoupon" },
         { name: "산삼조각", value: "wildGinsengPiece" },
+        { name: "파산신청서", value: "bankruptcyPaper" },
+        { name: "밍꾸러미", value: "mingBundle" },
+        { name: "펫먹이", value: "petFood" },
       )
   )
   .addIntegerOption(option =>
