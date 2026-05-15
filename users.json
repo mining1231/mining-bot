@@ -1400,7 +1400,7 @@
     }
   },
   "1496408494507692095": {
-    "money": 799999999996992,
+    "money": 800000001565366,
     "level": 2,
     "durability": 100,
     "engraveLevel": 0,
@@ -1444,7 +1444,9 @@
       "depositDoubleCoupon": 0,
       "randomTransferCoupon": 0,
       "wildGinsengPiece": 0,
-      "petFood": 0
+      "petFood": 0,
+      "mingBundle": 0,
+      "bankruptcyPaper": 0
     },
     "shopPurchase": {
       "lastResetDate": "",
