@@ -942,8 +942,8 @@
     "pet": {
       "key": "pig",
       "level": 1,
-      "hunger": 100,
-      "lastHungerAt": 1778824841649,
+      "hunger": 90,
+      "lastHungerAt": 1778846441649,
       "optionChoice": null
     },
     "farmLevel": 2,
@@ -988,7 +988,7 @@
       "questionBoxBoughtToday": 2
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 15.",
+      "lastResetDate": "2026. 5. 16.",
       "usedCount": 0,
       "maxCount": 10
     }
@@ -1226,7 +1226,7 @@
     }
   },
   "1481515645970550876": {
-    "money": -347640000,
+    "money": 0,
     "level": 31,
     "durability": 84,
     "engraveLevel": 0,

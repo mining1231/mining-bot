@@ -68,10 +68,10 @@ const petData = {
       option: {
         type: "exploreRepairChance",
         values: {
-          1: 0.2,
-          10: 0.25,
-          20: 0.3,
-          30: 0.35
+          1: 0.4,
+          10: 0.45,
+          20: 0.5,
+          30: 0.55
         }
       }
     },

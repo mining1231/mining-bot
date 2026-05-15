@@ -420,7 +420,9 @@ const defaultUser = {
     depositDoubleCoupon: 0,
     randomTransferCoupon: 0,
     wildGinsengPiece: 0,
-    petFood: 0
+    petFood: 0,
+    bankruptcyPaper: 0,
+    mingBundle: 0
   },
 
   shopPurchase: {
@@ -782,7 +784,7 @@ function saveUsers() {
 function openQuestionBox() {
   const rand = Math.random() * 100;
 
-  if (rand < 43) {
+  if (rand < 42) {
     const money = Math.floor(Math.random() * (6500000 - 5000000 + 1)) + 5000000;
     return {
       type: "money",
@@ -794,7 +796,7 @@ function openQuestionBox() {
   if (rand < 44) {
     return {
       type: "repair",
-      value: 1,
+      value: 2,
       text: "<:repair:1489875654886297640> 수리석 1개를 획득했다밍!"
     };
   }
@@ -872,6 +874,94 @@ function openQuestionBox() {
     type: "depositDoubleCoupon",
     value: 1,
     text: "<:coupon:1496892441213665492> 송금 더블 쿠폰 1개를 획득했다밍!"
+  };
+}
+
+function openMingBundle() {
+  const rand = Math.random() * 100;
+
+  if (rand < 27) {
+    const money = Math.floor(Math.random() * (1000000 - 100000 + 1)) + 100000;
+
+    return {
+      type: "money",
+      value: money,
+      text: `<:money:1489876006893518968> ${money.toLocaleString()}원을 획득했다밍!`
+    };
+  }
+
+  if (rand < 52) {
+    const peach = Math.floor(Math.random() * (2500 - 1000 + 1)) + 1000;
+
+    return {
+      type: "peach",
+      value: peach,
+      text: `🍑 복숭아 ${peach.toLocaleString()}개를 획득했다밍!`
+    };
+  }
+
+  if (rand < 72) {
+    const strawberry = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+
+    return {
+      type: "strawberry",
+      value: strawberry,
+      text: `🍓 딸기 ${strawberry.toLocaleString()}개를 획득했다밍!`
+    };
+  }
+
+  if (rand < 81) {
+    return {
+      type: "shineMuscat",
+      value: 1,
+      text: `<:grape:1489872445555867759> 샤인머스켓 1개를 획득했다밍!`
+    };
+  }
+
+  if (rand < 82) {
+    return {
+      type: "apple",
+      value: 1,
+      text: "🍎 사과 1개를 획득했다밍!"
+    };
+  }
+
+  if (rand < 83) {
+    return {
+      type: "repairStone",
+      value: 1,
+      text: "<:repair:1489875654886297640> 수리석 1개를 획득했다밍!"
+    };
+  }
+
+  if (rand < 93) {
+    return {
+      type: "bankruptcyPaper",
+      value: 2,
+      text: "📜 파산신청서 2개를 획득했다밍!"
+    };
+  }
+
+  if (rand < 94) {
+    return {
+      type: "randomTransferCoupon",
+      value: 1,
+      text: "<:coupon2:1497620249766268938> 송금 랜덤 쿠폰 1개를 획득했다밍!"
+    };
+  }
+
+  if (rand < 95) {
+    return {
+      type: "depositDoubleCoupon",
+      value: 1,
+      text: "<:coupon:1496892441213665492> 송금 더블 쿠폰 1개를 획득했다밍!"
+    };
+  }
+
+  return {
+    type: "petFood",
+    value: 1,
+    text: "<:food:1501244821983989831> 펫먹이 1개를 획득했다밍!"
   };
 }
 
@@ -1478,6 +1568,14 @@ if (user.inventory.petFood === undefined) {
   user.inventory.petFood = 0;
 }
 
+if (user.inventory.mingBundle === undefined) {
+  user.inventory.mingBundle = 0;
+}
+
+if (user.inventory.bankruptcyPaper === undefined) {
+  user.inventory.bankruptcyPaper = 0;
+}
+
   if (!user.shopPurchase) user.shopPurchase = {};
   if (user.shopPurchase.lastResetDate === undefined) user.shopPurchase.lastResetDate = "";
   if (user.shopPurchase.engraveStoneBoughtToday === undefined) user.shopPurchase.engraveStoneBoughtToday = 0;
@@ -1617,6 +1715,22 @@ function getBagItemMeta() {
       description:
         itemData?.petFood?.description ||
         "사용 시 펫의 배고픔을 회복시킬 수 있습니다."
+    },
+
+    bankruptcyPaper: {
+      label: itemData?.bankruptcyPaper?.name || "파산신청서",
+      emoji: itemData?.bankruptcyPaper?.emoji || "📜",
+      description:
+        itemData?.bankruptcyPaper?.description ||
+        "사용 시 파산신청을 쿨타임 없이 사용 할 수 있는 아이템입니다."
+    },
+
+    mingBundle: {
+      label: itemData?.mingBundle?.name || "밍꾸러미",
+      emoji: itemData?.mingBundle?.emoji || "<:mingbox:1504908502609432668>",
+      description:
+        itemData?.mingBundle?.description ||
+        "농사, 카페, 탐험을 모두 완료하면 받을 수 있는 꾸러미입니다."
     }
   };
 }
@@ -1629,7 +1743,7 @@ const lottoResults = [
   {
     name: "**단독 당첨**",
     multiplier: 50,
-    chance: 0.1,
+    chance: 0.02,
     type: "win",
     effect:"배팅한 금액의 50배를 얻습니다.",
     message:
@@ -1639,7 +1753,7 @@ const lottoResults = [
   {
     name: "**1등 당첨**",
     multiplier: 7,
-    chance: 4.5,
+    chance: 3.2,
     type: "win",
     effect:"배팅한 금액의 7배를 얻습니다.",
     message:
@@ -1649,7 +1763,7 @@ const lottoResults = [
   {
     name: "**2등 당첨**",
     multiplier: 3,
-    chance: 11,
+    chance: 11.4,
     type: "win",
     effect:"배팅한 금액의 3배를 얻습니다.",
     message:
@@ -1659,7 +1773,7 @@ const lottoResults = [
   {
     name: "**3등 당첨**",
     multiplier: 1,
-    chance: 28.8,
+    chance: 29,
     type: "win",
     effect:"배팅한 금액만큼 얻습니다.",
     message:
@@ -1669,7 +1783,7 @@ const lottoResults = [
   {
     name: "**4등 당첨**",
     multiplier: 0,
-    chance: 7.3,
+    chance: 8,
     type: "draw",
     effect: "아무 일도 일어나지 않았습니다.",
     message:
@@ -1679,7 +1793,7 @@ const lottoResults = [
   {
     name: "**낙첨**",
     multiplier: -1,
-    chance: 28.3,
+    chance: 29,
     type: "lose",
     effect: "배팅한 금액만큼 잃습니다.",
     message:
@@ -2168,7 +2282,7 @@ ctx.fillText(`${hunger}%`, startX + barWidth + 15, startY - 2);
     else if (pet.option.type === "topLootChance") {
       optionText = "최상급 전리품 당첨 확률 5%";
     } else if (pet.option.type === "exploreRepairChance") {
-      optionText = "수리석 등장 확률 0.2%";
+      optionText = "수리석 등장 확률 0.4%";
     } else if (pet.option.type === "cafeMoneyDouble") {
       optionText = "카페로 얻는 금액 30% 확률로 2배";
     }
@@ -2620,6 +2734,9 @@ if (interaction.isModalSubmit() && interaction.customId === "coupon_use_modal") 
     depositDoubleCoupon: { name: "송금 더블 쿠폰", emoji: "<:coupon:1496892441213665492>" },
     randomTransferCoupon: { name: "송금 랜덤 쿠폰", emoji: "<:coupon2:1497620249766268938>" },
     wildGinsengPiece: { name: "산삼조각", emoji: "<:piece:1500337696525254658>" },
+    bankruptcyPaper: { name: "파산신청서", emoji: "📜" },
+    mingBundle: { name: "밍꾸러미", emoji: "<:mingbox:1504908502609432668>" },
+    petFood: { name: "펫먹이", emoji: "<:food:1501244821983989831>" },
   };
 
   const cropMap = {
@@ -2839,7 +2956,7 @@ if (interaction.customId === "stop") {
 
   if (!user.inventory.questionBox || user.inventory.questionBox <= 0) {
     return interaction.reply({
-      content: "❌ 물음표박스가 없습니다.",
+      content: "**보유한 물음표박스가 없다밍!**",
       ephemeral: true
     });
   }
@@ -2919,6 +3036,50 @@ ${rewardStatusText}
 남은 상자 개수 : ${user.inventory.questionBox}개`
         )
     ],
+    components: []
+  });
+}
+
+if (interaction.customId === "open_mingBundle") {
+  const id = interaction.user.id;
+  const user = ensureUser(id);
+
+  if (!user.inventory.mingBundle || user.inventory.mingBundle <= 0) {
+    return interaction.reply({
+      content: "**보유한 밍꾸러미가 없다밍!**",
+      ephemeral: true
+    });
+  }
+
+  user.inventory.mingBundle -= 1;
+
+  const result = openMingBundle();
+
+  if (result.type === "money") user.money += result.value;
+  if (result.type === "peach") user.farmCrops.peach += result.value;
+  if (result.type === "strawberry") user.farmCrops.strawberry += result.value;
+  if (result.type === "shineMuscat") user.farmCrops.shineMuscat += result.value;
+  if (result.type === "apple") user.farmCrops.apple += result.value;
+  if (result.type === "repairStone") user.inventory.repairStone += result.value;
+  if (result.type === "bankruptcyPaper") user.inventory.bankruptcyPaper += result.value;
+  if (result.type === "randomTransferCoupon") user.inventory.randomTransferCoupon += result.value;
+  if (result.type === "depositDoubleCoupon") user.inventory.depositDoubleCoupon += result.value;
+  if (result.type === "petFood") user.inventory.petFood += result.value;
+
+  saveUsers();
+
+  const embed = new EmbedBuilder()
+    .setColor("#f9a8d4")
+    .setTitle("<:mingbox:1504908502609432668> **밍꾸러미 사용 결과**")
+    .setDescription(
+
+`${result.text}
+
+남은 밍꾸러미 개수: ${user.inventory.mingBundle.toLocaleString()}개`
+    );
+
+  return interaction.update({
+    embeds: [embed],
     components: []
   });
 }
@@ -3926,6 +4087,76 @@ if (selectedKey === "questionBox") {
 🍀운에 따라 예상치 못한 보상이 튀어나올지도 모른다밍…!**
 
 <:box:1492879878838816849>: ${amount}개`
+        )
+    ],
+    components: [new ActionRowBuilder().addComponents(openButton)],
+  });
+}
+
+if (selectedKey === "bankruptcyPaper") {
+  if (user.money >= 0) {
+    return interaction.reply({
+      content: "**잔액이 마이너스일 때만 파산신청서를 사용할 수 있다밍!**",
+      ephemeral: true
+    });
+  }
+
+  user.inventory.bankruptcyPaper -= 1;
+
+  const rand = Math.random() * 100;
+
+  let resultText = "";
+  let color = "#22c55e";
+
+  if (rand < 10) {
+    user.money = 0;
+    resultText = "**잔액이 전부 탕감되었다밍! 완전 새 출발이다밍!**";
+    color = "#22c55e";
+  } else if (rand < 90) {
+    const debt = Math.abs(user.money);
+    const reduced = Math.floor(debt * 0.5);
+    user.money += reduced;
+
+    resultText = `**잔액의 절반이 탕감되었다밍!**  
+**탕감 금액: ${reduced.toLocaleString()}원이다밍!**`;
+    color = "#f59e0b";
+  } else {
+    resultText = "**파산신청이 거절되었다밍ㅜ…**";
+    color = "#ff0000";
+  }
+
+  saveUsers();
+
+  const embed = new EmbedBuilder()
+    .setColor(color)
+    .setTitle("📜파산 신청서 사용 결과")
+    .setDescription(`${resultText}
+
+**<:money:1489876006893518968> 현재 잔액: ${user.money.toLocaleString()}원이다밍!**`);
+
+  return interaction.reply({
+    embeds: [embed],
+    ephemeral: true
+  });
+}
+
+// 밍꾸러미
+if (selectedKey === "mingBundle") {
+  const openButton = new ButtonBuilder()
+    .setCustomId("open_mingBundle")
+    .setLabel("열기")
+    .setStyle(ButtonStyle.Success);
+
+  return interaction.reply({
+    embeds: [
+      new EmbedBuilder()
+        .setColor("#f9a8d4")
+        .setTitle("<:mingbox:1504908502609432668> **밍꾸러미**")
+        .setDescription(
+`**탐험을 모두 완료한 너에게 주어진 특별한 꾸러미다밍!
+열면 여러 보상 중 하나를 획득할 수 있다밍!**
+
+<:mingbox:1504908502609432668>: ${amount}개`
         )
     ],
     components: [new ActionRowBuilder().addComponents(openButton)],
@@ -6225,11 +6456,22 @@ if (commandName === "탐험") {
   user.exploreCount += 1;
   user.lastExploreAt = now;
 
-  let repairChance = 0.1;
+  let gotMingBundle = false;
+
+if (user.exploreCount === 100) {
+  if (user.inventory.mingBundle === undefined) {
+    user.inventory.mingBundle = 0;
+  }
+
+  user.inventory.mingBundle += 1;
+  gotMingBundle = true;
+}
+
+  let repairChance = 0.2;
 
   if (user.pet?.key === "pig") {
     const pet = getPetByKey("pig");
-    let petChance = 0.1;
+    let petChance = 0.4;
 
     if (pet?.option?.values) {
       const levels = Object.keys(pet.option.values)
@@ -6283,11 +6525,18 @@ if (commandName === "탐험") {
       "**오랜 시간 탐험했지만, 오늘은 아무런 성과도 얻지 못했다밍…**"
     ];
 
-    description =
+description =
 `${failMessages[Math.floor(Math.random() * failMessages.length)]}
 
-**남은 탐험 횟수: ${100 - user.exploreCount}회**`;
-  }
+${gotMingBundle
+? `
+
+**오늘 가능한 탐험을 전부 완료했다밍! 너에게 밍꾸러미를 선물해주겠다밍!**
+
+**<:mingbox:1504908502609432668>: ${user.inventory.mingBundle.toLocaleString()}개 (+1)**`
+: ""}
+
+**남은 탐험 횟수: ${100 - user.exploreCount}회**`;}
 
   saveUsers();
 
@@ -7273,7 +7522,10 @@ if (commandName === "아이템지급") {
     questionBox: "물음표박스",
     depositDoubleCoupon: "송금 더블 쿠폰",
     randomTransferCoupon: "송금 랜덤 쿠폰",
-    wildGinsengPiece: "산삼조각"
+    wildGinsengPiece: "산삼조각",
+    bankruptcyPaper: "파산신청서",
+    mingBundle: "밍꾸러미",
+    petFood: "펫먹이"
   };
 
   if (!itemMap[itemKey]) {
@@ -7502,7 +7754,10 @@ if (commandName === "쿠폰생성") {
     questionBox: "물음표박스",
     depositDoubleCoupon: "송금 더블 쿠폰",
     randomTransferCoupon: "송금 랜덤 쿠폰",
-    wildGinsengPiece: "산삼조각"
+    wildGinsengPiece: "산삼조각",
+    bankruptcyPaper: "파산신청서",
+    mingBundle: "밍꾸러미",
+    petFood: "펫먹이"
   };
 
   const cropMap = {

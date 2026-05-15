@@ -45,6 +45,20 @@ petFood: {
   description: "사용 시 펫의 배고픔을 회복시킬 수 있습니다."
 },
 
+bankruptcyPaper: {
+  name: "파산신청서",
+  emoji: "📜",
+  description: "사용 시 파산신청을 쿨타임 없이 사용 할 수 있는 아이템입니다.",
+  type: "usable"
+},
+
+mingBundle: {
+  name: "밍꾸러미",
+  emoji: "<:mingbox:1504908502609432668>",
+  description: "농사, 카페, 탐험을 모두 완료하면 받을 수 있는 꾸러미입니다.",
+  type: "usable"
+},
+
 };
 
 module.exports = itemData;
