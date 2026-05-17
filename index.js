@@ -357,6 +357,9 @@ const YUT_CHANNEL_IDS = [
 const activeInteractions = new Set();
 const upgradeCollectors = new Map();
 const engraveCollectors = new Map();
+const weaponSellCollectors = new Map();
+
+const processingInteractions = new Set();
 
 const client = new Client({
   intents: [
@@ -694,6 +697,13 @@ let coupons = {};
 let marketState = {
   market: {},
   lastUpdate: 0
+};
+
+let rankingCache = {
+  money: null,
+  weapon: null,
+  engrave: null,
+  updatedAt: 0
 };
 
 function getRandomInt(min, max) {
@@ -2681,8 +2691,191 @@ ctx.textAlign = "left";
   return canvas.toBuffer("image/png");
 }
 
-client.once("ready", () => {
+async function buildMoneyRankingCache() {
+  const sorted = Object.entries(users)
+    .filter(([userId]) => !isRankingExcluded(userId))
+    .sort((a, b) => (b[1].money || 0) - (a[1].money || 0));
+
+  const top = sorted.slice(0, 10);
+
+  let rankText = "";
+  let firstPlaceAvatar = null;
+
+  for (let i = 0; i < top.length; i++) {
+    const [userId, data] = top[i];
+
+    let username = "알 수 없음";
+    let avatarURL = null;
+
+    try {
+      const discordUser = await client.users.fetch(userId);
+      username = discordUser.username;
+
+      if (username.length > 17) {
+        username = username.slice(0, 17) + "...";
+      }
+
+      avatarURL = discordUser.displayAvatarURL({ size: 256 });
+    } catch (e) {}
+
+    let rankLabel;
+
+    if (i === 0) rankLabel = "🥇";
+    else if (i === 1) rankLabel = "🥈";
+    else if (i === 2) rankLabel = "🥉";
+    else rankLabel = `${i + 1}.`;
+
+    if (i === 0 && avatarURL) {
+      firstPlaceAvatar = avatarURL;
+    }
+
+    rankText += `${rankLabel} ${username}
+${(data.money || 0).toLocaleString()}원
+
+`;
+  }
+
+  rankingCache.money = {
+  description:
+`${rankText.trimEnd() || "순위 데이터가 없습니다."}
+
+-# 순위는 30초마다 갱신됩니다.`,
+  thumbnail: firstPlaceAvatar
+};
+}
+
+async function buildWeaponRankingCache() {
+  const sorted = Object.entries(users)
+    .filter(([userId]) => !isRankingExcluded(userId))
+    .sort((a, b) => (b[1].level || 1) - (a[1].level || 1));
+
+  const top = sorted.slice(0, 10);
+
+  let rankText = "";
+  let firstPlaceAvatar = null;
+
+  for (let i = 0; i < top.length; i++) {
+    const [userId, data] = top[i];
+
+    let username = "알 수 없음";
+    let avatarURL = null;
+
+    try {
+      const discordUser = await client.users.fetch(userId);
+      username = discordUser.username;
+
+      if (username.length > 17) {
+        username = username.slice(0, 17) + "...";
+      }
+
+      avatarURL = discordUser.displayAvatarURL({ size: 256 });
+    } catch (e) {}
+
+    let rankLabel;
+
+    if (i === 0) rankLabel = "🥇";
+    else if (i === 1) rankLabel = "🥈";
+    else if (i === 2) rankLabel = "🥉";
+    else rankLabel = `${i + 1}.`;
+
+    if (i === 0 && avatarURL) {
+      firstPlaceAvatar = avatarURL;
+    }
+
+    const weaponLevel = data.level || 1;
+    const weaponData = gameData.weapons["Lv" + weaponLevel];
+
+    rankText += `${rankLabel} ${username}
+Lv${weaponLevel} 「${weaponData?.name || "알 수 없음"}」
+
+`;
+  }
+
+  rankingCache.weapon = {
+  description:
+`${rankText.trimEnd() || "순위 데이터가 없습니다."}
+
+-# 순위는 30초마다 갱신됩니다.`,
+  thumbnail: firstPlaceAvatar
+};
+}
+
+async function buildEngraveRankingCache() {
+  const sorted = Object.entries(users)
+    .filter(([userId]) => !isRankingExcluded(userId))
+    .sort((a, b) => (b[1].engraveLevel || 0) - (a[1].engraveLevel || 0));
+
+  const top = sorted.slice(0, 10);
+
+  let rankText = "";
+  let firstPlaceAvatar = null;
+
+  for (let i = 0; i < top.length; i++) {
+    const [userId, data] = top[i];
+
+    let username = "알 수 없음";
+    let avatarURL = null;
+
+    try {
+      const discordUser = await client.users.fetch(userId);
+      username = discordUser.username;
+
+      if (username.length > 17) {
+        username = username.slice(0, 17) + "...";
+      }
+
+      avatarURL = discordUser.displayAvatarURL({ size: 256 });
+    } catch (e) {}
+
+    let rankLabel;
+
+    if (i === 0) rankLabel = "🥇";
+    else if (i === 1) rankLabel = "🥈";
+    else if (i === 2) rankLabel = "🥉";
+    else rankLabel = `${i + 1}.`;
+
+    if (i === 0 && avatarURL) {
+      firstPlaceAvatar = avatarURL;
+    }
+
+    const engraveLevel = data.engraveLevel || 0;
+    const starText = getEngraveStars(engraveLevel) || "각인 없음";
+
+    rankText += `${rankLabel} ${username}
+${starText}
+
+`;
+  }
+
+  rankingCache.engrave = {
+    description:
+`${rankText.trimEnd() || "순위 데이터가 없습니다."}
+
+-# 순위는 30초마다 갱신됩니다.`,
+    thumbnail: firstPlaceAvatar
+  };
+}
+
+client.once("ready", async () => {
   console.log(`${client.user.tag} 로그인 완료`);
+
+  await buildMoneyRankingCache();
+  await buildWeaponRankingCache();
+  await buildEngraveRankingCache();
+
+  setInterval(async () => {
+    try {
+      await buildMoneyRankingCache();
+      await buildWeaponRankingCache();
+      await buildEngraveRankingCache();
+
+      rankingCache.updatedAt = Date.now();
+
+      console.log("순위 캐시 갱신 완료");
+    } catch (err) {
+      console.log("순위 캐시 갱신 오류:", err);
+    }
+  }, 30000);
 });
 
 client.on("interactionCreate", async interaction => {
@@ -2880,6 +3073,12 @@ if (interaction.customId === "stop") {
     engraveCollector.stop("stopped");
   }
   engraveCollectors.delete(id);
+
+  const weaponSellCollector = weaponSellCollectors.get(id);
+if (weaponSellCollector) {
+  weaponSellCollector.stop("stopped");
+}
+weaponSellCollectors.delete(id);
 
   const oldEmbed = interaction.message.embeds[0];
 
@@ -3495,6 +3694,17 @@ if (
 ) {
   const user = ensureUser(interaction.user.id);
 
+  const processKey = interaction.message.id;
+
+if (processingInteractions.has(processKey)) {
+  return interaction.reply({
+    content: "**이미 처리중인 가위바위보다밍!**",
+    ephemeral: true
+  });
+}
+
+processingInteractions.add(processKey);
+
   const parts = interaction.customId.split("_");
 
   const userChoice = parts[1];
@@ -3608,6 +3818,17 @@ if (
 if (interaction.customId === "engrave_upgrade") {
   const id = interaction.user.id;
 
+  const processKey = interaction.message.id;
+
+if (processingInteractions.has(processKey)) {
+  return interaction.reply({
+    content: "**이미 처리중인 별의각인이다밍!**",
+    ephemeral: true
+  });
+}
+
+processingInteractions.add(processKey);
+
   const collector = engraveCollectors.get(id);
   if (collector) {
     collector.resetTimer();
@@ -3720,6 +3941,17 @@ ${resultData ? `**성공:** ${resultData.success}%
 /* ---------------- 강화 버튼------------- */
 if (interaction.customId === "upgrade") {
   const id = interaction.user.id;
+
+  const processKey = interaction.message.id;
+
+if (processingInteractions.has(processKey)) {
+  return interaction.reply({
+    content: "**이미 처리중인 강화다밍!**",
+    ephemeral: true
+  });
+}
+
+processingInteractions.add(processKey);
 
   const collector = upgradeCollectors.get(id);
   if (collector) {
@@ -3922,9 +4154,81 @@ ${result}
   });
 }
 
+/* ---------------- 무기판매 버튼 ---------------- */
+if (interaction.customId === "weapon_sell_confirm") {
+  const id = interaction.user.id;
+
+  const collector = weaponSellCollectors.get(id);
+  if (collector) {
+    collector.resetTimer();
+    collector.stop("stopped");
+    weaponSellCollectors.delete(id);
+  }
+
+  const user = ensureUser(id);
+
+  const oldLevel = user.level;
+  const weaponData = gameData.weapons["Lv" + oldLevel];
+
+  if (!weaponData) {
+    return interaction.reply({
+      content: "❌ **무기 데이터를 찾을 수 없다밍!**",
+      flags: 64
+    });
+  }
+
+  if (oldLevel <= 1) {
+    return interaction.reply({
+      content: "❌ **기본 무기는 판매할 수 없다밍!**",
+      flags: 64
+    });
+  }
+
+  const sellPrice = weaponData.sellPrice || 0;
+
+  user.money += sellPrice;
+  user.level = 1;
+  user.durability = 100;
+
+  saveUsers();
+
+  const newWeaponData = gameData.weapons["Lv1"];
+
+  const embed = new EmbedBuilder()
+    .setColor("#22c55e")
+    .setTitle("<:weapon:1489875492051091536> 무기 판매 완료")
+    .setDescription(
+`**무기 판매가 완료됐다밍!**
+
+<:money:1489876006893518968> **획득 금액: ${sellPrice.toLocaleString()}원**
+<:money:1489876006893518968> **현재 잔액: ${user.money.toLocaleString()}원 (+${sellPrice.toLocaleString()}원)**
+
+<:weapon:1489875492051091536> **현재 무기**
+**Lv1 「${newWeaponData.name}」**`
+    )
+    .setImage(newWeaponData.image);
+
+  return interaction.update({
+    embeds: [embed],
+    components: []
+  });
+}
+
 /* ---------------- 복권 버튼 ---------------- */
 if (interaction.customId === "lotto_sheep" || interaction.customId === "lotto_wolf") {
   const id = interaction.user.id;
+
+  const processKey = interaction.message.id;
+
+if (processingInteractions.has(processKey)) {
+  return interaction.reply({
+    content: "**이미 처리중인 복권이다밍!**",
+    ephemeral: true
+  });
+}
+
+processingInteractions.add(processKey);
+
   const user = ensureUser(id);
 
   const picked = interaction.customId.replace("lotto_", "");
@@ -5351,6 +5655,96 @@ if (commandName === "강화") {
   });
 }
 
+/* ---------------- 무기판매 ---------------- */
+if (commandName === "무기판매") {
+  const user = ensureUser(id);
+
+  const oldLevel = user.level;
+  const weaponData = gameData.weapons["Lv" + oldLevel];
+
+  if (!weaponData) {
+    return interaction.reply({
+      content: "**현재 무기 데이터를 찾을 수 없다밍!**",
+      ephemeral: true
+    });
+  }
+
+  if (oldLevel <= 1) {
+    return interaction.reply({
+      content: "**기본 무기(Lv1)는 판매할 수 없다밍!**",
+      ephemeral: true
+    });
+  }
+
+  const sellPrice = weaponData.sellPrice || 0;
+  const weaponName = weaponData.name;
+
+  const sellButton = new ButtonBuilder()
+    .setCustomId("weapon_sell_confirm")
+    .setLabel("판매하기")
+    .setStyle(ButtonStyle.Danger);
+
+ const cancelButton = new ButtonBuilder()
+  .setCustomId("stop")
+  .setLabel("취소")
+  .setStyle(ButtonStyle.Secondary);
+
+  const row = new ActionRowBuilder().addComponents(
+    sellButton,
+    cancelButton
+  );
+
+  const embed = new EmbedBuilder()
+    .setColor("#f10f0f")
+    .setTitle("<:weapon:1489875492051091536> 무기 판매")
+    .setDescription(
+`현재 <@${interaction.user.id}>님의 보유중인 무기는
+**Lv${oldLevel} 「${weaponName}」** 입니다
+
+<:money:1489876006893518968> **판매금액: ${sellPrice.toLocaleString()}원**
+**내구도: ${user.durability}**
+
+**1분 동안 작동이 없으면 창이 자동으로 닫힌다밍!**`
+    )
+    .setImage(weaponData.image);
+
+  const msg = await interaction.reply({
+    embeds: [embed],
+    components: [row],
+    allowedMentions: { parse: [] },
+    fetchReply: true
+  });
+
+  const collector = msg.createMessageComponentCollector({
+    idle: 60000
+  });
+
+  weaponSellCollectors.set(id, collector);
+
+  collector.on("end", async (collected, reason) => {
+  if (reason === "stopped" || reason === "user") return;
+
+    try {
+      const closedEmbed = new EmbedBuilder()
+        .setColor("#9CA3AF")
+        .setDescription(
+`ㅤ
+**1분 동안 작동하지 않아 창이 자동으로 닫혔다밍!**
+ㅤ`
+        );
+
+      await msg.edit({
+        embeds: [closedEmbed],
+        components: []
+      });
+    } catch (err) {
+      console.log("무기판매 자동 종료 오류:", err.message);
+    }
+  });
+
+  return;
+}
+
 /* ---------------- 로또 ---------------- */
 if (commandName === "로또") {
   const user = ensureUser(id);
@@ -5770,82 +6164,55 @@ if (commandName === "순위") {
   const subcommand = interaction.options.getSubcommand();
 
   if (subcommand === "돈") {
-    const sorted = Object.entries(users)
-  .filter(([userId]) => !isRankingExcluded(userId))
-  .sort((a, b) => (b[1].money || 0) - (a[1].money || 0));
+  const embed = new EmbedBuilder()
+    .setColor("#63625d")
+    .setTitle("<:money:1489876006893518968> 돈 순위")
+    .setDescription(
+      rankingCache.money?.description || "순위 데이터를 불러오는 중이다밍!"
+    );
 
-    const top = sorted.slice(0, 10);
-
-    let rankText = "";
-    let firstPlaceAvatar = null;
-
-    for (let i = 0; i < top.length; i++) {
-      const [userId, data] = top[i];
-
-      let username = "알 수 없음";
-      let avatarURL = null;
-
-      try {
-        const discordUser = await client.users.fetch(userId);
-        username = discordUser.username;
-        avatarURL = discordUser.displayAvatarURL({ size: 256 });
-      } catch (e) {}
-
-      // 🏆 순위 표시
-      let rankLabel;
-
-      if (i === 0) rankLabel = "🥇";
-      else if (i === 1) rankLabel = "🥈";
-      else if (i === 2) rankLabel = "🥉";
-      else rankLabel = `${i + 1}.`;
-
-      // 1등 프로필 저장
-      if (i === 0 && avatarURL) {
-        firstPlaceAvatar = avatarURL;
-      }
-
-      rankText += `${rankLabel} ${username}
-${(data.money || 0).toLocaleString()}원
-
-`;
-    }
-
-    const myRankIndex = sorted.findIndex(([userId]) => userId === id);
-    const myRank = myRankIndex + 1;
-
-    let myUsername = "알 수 없음";
-
-    try {
-      const discordUser = await client.users.fetch(id);
-      myUsername = discordUser.username;
-    } catch (e) {}
-
-    const myMoney = users[id]?.money || 0;
-
-    let description = rankText.trimEnd();
-
-    // 🔥 10등 밖일 때만 내 순위 표시
-    if (myRank > 10) {
-      description += `
-
-${myRank} , ${myUsername}
-${myMoney.toLocaleString()}원`;
-    }
-
-    const embed = new EmbedBuilder()
-      .setColor("#63625d")
-      .setTitle("<:money:1489876006893518968> 돈 순위")
-      .setDescription(description);
-
-    // 🖼️ 1등 프로필사진
-    if (firstPlaceAvatar) {
-      embed.setThumbnail(firstPlaceAvatar);
-    }
-
-    return interaction.reply({
-      embeds: [embed]
-    });
+  if (rankingCache.money?.thumbnail) {
+    embed.setThumbnail(rankingCache.money.thumbnail);
   }
+
+  return interaction.reply({
+    embeds: [embed]
+  });
+}
+
+ if (subcommand === "무기") {
+  const embed = new EmbedBuilder()
+    .setColor("#63625d")
+    .setTitle("<:weapon:1489875492051091536> 무기 순위")
+    .setDescription(
+      rankingCache.weapon?.description || "순위 데이터를 불러오는 중이다밍!"
+    );
+
+  if (rankingCache.weapon?.thumbnail) {
+    embed.setThumbnail(rankingCache.weapon.thumbnail);
+  }
+
+  return interaction.reply({
+    embeds: [embed]
+  });
+}
+
+if (subcommand === "각인") {
+  const embed = new EmbedBuilder()
+    .setColor("#63625d")
+    .setTitle("💫 각인 순위")
+    .setDescription(
+      rankingCache.engrave?.description || "순위 데이터를 불러오는 중이다밍!"
+    );
+
+  if (rankingCache.engrave?.thumbnail) {
+    embed.setThumbnail(rankingCache.engrave.thumbnail);
+  }
+
+  return interaction.reply({
+    embeds: [embed]
+  });
+}
 }
 
 /* ---------------- 정보 ---------------- */
@@ -6579,7 +6946,6 @@ if (user.exploreCount === 100) {
 
 description =
 `${failMessages[Math.floor(Math.random() * failMessages.length)]}
-
 ${gotMingBundle
 ? `
 

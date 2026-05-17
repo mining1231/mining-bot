@@ -29,6 +29,11 @@ new SlashCommandBuilder()
     .toJSON(),
 
     new SlashCommandBuilder()
+  .setName("무기판매")
+  .setDescription("현재 보유중인 무기를 판매합니다.")
+  .toJSON(),
+
+    new SlashCommandBuilder()
     .setName("별의각인")
     .setDescription("별의각인을 시도합니다.")
     .toJSON(),
@@ -222,13 +227,23 @@ new SlashCommandBuilder()
       .setMinValue(1000)
   ),
 
-new SlashCommandBuilder()
+  new SlashCommandBuilder()
   .setName("순위")
   .setDescription("순위를 확인합니다.")
   .addSubcommand(subcommand =>
     subcommand
       .setName("돈")
       .setDescription("돈 순위를 확인합니다.")
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName("무기")
+      .setDescription("무기 순위를 확인합니다.")
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName("각인")
+      .setDescription("각인 순위를 확인합니다.")
   ),
 
   new SlashCommandBuilder()
