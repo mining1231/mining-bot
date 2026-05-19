@@ -360,6 +360,8 @@ const engraveCollectors = new Map();
 const weaponSellCollectors = new Map();
 
 const processingInteractions = new Set();
+const upgradeProcessingUsers = new Set();
+const engraveProcessingUsers = new Set();
 
 const client = new Client({
   intents: [
@@ -820,7 +822,7 @@ function openQuestionBox() {
   }
 
   if (rand < 67) {
-    const peach = Math.floor(Math.random() * (4000 - 3000 + 1)) + 3000;
+    const peach = Math.floor(Math.random() * (5500 - 4000 + 1)) + 4000;
     return {
       type: "peach",
       value: peach,
@@ -829,7 +831,7 @@ function openQuestionBox() {
   }
 
   if (rand < 80) {
-    const strawberry = Math.floor(Math.random() * (200 - 90 + 1)) + 90;
+    const strawberry = Math.floor(Math.random() * (200 - 100 + 1)) + 100;
     return {
       type: "strawberry",
       value: strawberry,
@@ -1190,16 +1192,37 @@ function updateSingleMarket(key, currentPrice, data) {
     price += rand(data.stepMin, data.stepMax);
   }
 
-  // 목표가보다 낮으면 상승
-  else if (price < target.targetPrice) {
+// 목표가보다 낮음
+else if (price < target.targetPrice) {
+
+  // 70% 확률 상승
+  if (Math.random() < 0.7) {
     price += rand(data.stepMin, data.stepMax);
   }
-
-  // 목표가보다 높으면 하락
-  else if (price > target.targetPrice) {
+  // 30% 확률 하락
+  else {
     price -= rand(data.stepMin, data.stepMax);
   }
+}
 
+// 목표가보다 높음
+else if (price > target.targetPrice) {
+
+  // 70% 확률 하락
+  if (Math.random() < 0.7) {
+    price -= rand(data.stepMin, data.stepMax);
+  }
+  // 30% 확률 상승
+  else {
+    price += rand(data.stepMin, data.stepMax);
+  }
+}
+
+else {
+  price += Math.random() < 0.5
+    ? -rand(data.stepMin, data.stepMax)
+    : rand(data.stepMin, data.stepMax);
+}
   price = clamp(price, data.min, data.max);
 
   return price;
@@ -2878,6 +2901,26 @@ client.once("ready", async () => {
   }, 30000);
 });
 
+  setInterval(() => {
+    try {
+      if (!marketState.market) marketState.market = {};
+      if (marketState.lastUpdate === undefined) marketState.lastUpdate = 0;
+
+      if (Object.keys(marketState.market).length === 0) {
+        marketState.market = generateMarket();
+      } else {
+        marketState.market = updateMarket(marketState.market);
+      }
+
+      marketState.lastUpdate = Date.now();
+      saveMarket();
+
+      console.log("작물 시세 자동 갱신 완료");
+    } catch (err) {
+      console.log("작물 시세 자동 갱신 오류:", err);
+    }
+  }, 30000);
+
 client.on("interactionCreate", async interaction => {
     logCommandUse(interaction);
 
@@ -3815,110 +3858,134 @@ processingInteractions.add(processKey);
 }
 
 /* ---------------- 별의각인 버튼 ---------------- */
-if (interaction.customId === "engrave_upgrade") {
+if (interaction.customId.startsWith("engrave_upgrade_")) {
   const id = interaction.user.id;
 
-  const processKey = interaction.message.id;
+  const processKey = interaction.customId;
 
-if (processingInteractions.has(processKey)) {
-  return interaction.reply({
-    content: "**이미 처리중인 별의각인이다밍!**",
-    ephemeral: true
-  });
-}
-
-processingInteractions.add(processKey);
-
-  const collector = engraveCollectors.get(id);
-  if (collector) {
-    collector.resetTimer();
-  }
-
-  const user = ensureUser(id);
-  const level = user.engraveLevel || 0;
-
-  if (level >= 30) {
+  if (processingInteractions.has(processKey)) {
     return interaction.reply({
-      content: "🏆 **이미 최대 단계다밍!**",
-      flags: 64
+      content: "**이미 처리중인 별의각인이다밍!**",
+      ephemeral: true
     });
   }
 
-  const nextLevel = level + 1;
-  const data = engraveData[nextLevel];
+  processingInteractions.add(processKey);
 
-  if (!data) return;
+  try {
+    await interaction.deferUpdate();
 
-  if (user.inventory.engraveStone < data.stone) {
-    return interaction.reply({
-      content: "❌ **각인석이 부족하다밍!**",
-      flags: 64
-    });
-  }
+    const collector = engraveCollectors.get(id);
+    if (collector) {
+      collector.resetTimer();
+    }
 
-  user.inventory.engraveStone -= data.stone;
+    const user = ensureUser(id);
+    const level = user.engraveLevel || 0;
 
-  const rand = Math.random() * 100;
+    if (level >= 30) {
+      processingInteractions.delete(processKey);
 
-  let resultText = "";
-  let color = "#8b5cf6";
+      return interaction.editReply({
+        content: "🏆 **이미 최대 단계다밍!**",
+        embeds: [],
+        components: []
+      });
+    }
 
-  if (rand < data.success) {
-    user.engraveLevel += 1;
-    resultText = `✨ **각인 성공이다밍! → Lv.${user.engraveLevel}**`;
-    color = "#8b5cf6";
-  } else if (rand < data.success + data.keep) {
-    resultText = `➖ **각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
-    color = "#facc15";
-  } else {
-    let foxProtectChance = 0;
+    const nextLevel = level + 1;
+    const data = engraveData[nextLevel];
 
-    if (user.pet?.key === "fox") {
-      const pet = getPetByKey("fox");
+    if (!data) {
+      processingInteractions.delete(processKey);
+      return;
+    }
 
-      if (pet?.option?.values) {
-        const levels = Object.keys(pet.option.values)
-          .map(Number)
-          .sort((a, b) => b - a);
+    if (user.inventory.engraveStone < data.stone) {
+      processingInteractions.delete(processKey);
 
-        for (const lvl of levels) {
-          if ((user.pet.level || 1) >= lvl) {
-            foxProtectChance = pet.option.values[lvl];
-            break;
+      return interaction.editReply({
+        content: "❌ **각인석이 부족하다밍!**",
+        embeds: [],
+        components: []
+      });
+    }
+
+    user.inventory.engraveStone -= data.stone;
+
+    const rand = Math.random() * 100;
+
+    let resultText = "";
+    let color = "#8b5cf6";
+
+    if (rand < data.success) {
+      user.engraveLevel += 1;
+      resultText = `✨ **각인 성공이다밍! → Lv.${user.engraveLevel}**`;
+      color = "#8b5cf6";
+    } else if (rand < data.success + data.keep) {
+      resultText = `➖ **각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
+      color = "#facc15";
+    } else {
+      let foxProtectChance = 0;
+
+      if (user.pet?.key === "fox") {
+        const pet = getPetByKey("fox");
+
+        if (pet?.option?.values) {
+          const levels = Object.keys(pet.option.values)
+            .map(Number)
+            .sort((a, b) => b - a);
+
+          for (const lvl of levels) {
+            if ((user.pet.level || 1) >= lvl) {
+              foxProtectChance = pet.option.values[lvl];
+              break;
+            }
           }
         }
       }
-    }
 
-    const foxProtect = Math.random() * 100 < foxProtectChance;
+      const foxProtect = Math.random() * 100 < foxProtectChance;
 
-    if (foxProtect) {
-      resultText = `**폭시의 고유옵션이 발동했다밍!**
+      if (foxProtect) {
+        resultText = `**폭시의 고유옵션이 발동했다밍!**
 ➖ **파괴를 막고 각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
-      color = "#facc15";
-    } else {
-      user.level = 1;
-      user.durability = 100;
-      user.engraveLevel = 0;
+        color = "#facc15";
+      } else {
+        user.level = 1;
+        user.durability = 100;
+        user.engraveLevel = 0;
 
-      resultText = "💥 **파괴됐다밍... 무기가 Lv.1로 초기화되고 별의각인도 초기화됐다밍!**";
-      color = "#ef4444";
+        resultText = "💥 **파괴됐다밍... 무기가 Lv.1로 초기화되고 별의각인도 초기화됐다밍!**";
+        color = "#ef4444";
+      }
     }
-  }
 
-  const afterStars = getEngraveStars(user.engraveLevel);
+    const afterStars = getEngraveStars(user.engraveLevel);
 
-  const resultNextLevel = user.engraveLevel + 1;
-  const resultData = engraveData[resultNextLevel];
+    const resultNextLevel = user.engraveLevel + 1;
+    const resultData = engraveData[resultNextLevel];
 
-  saveUsers();
+    saveUsers();
 
-  const weaponData = gameData.weapons["Lv" + user.level];
+    const weaponData = gameData.weapons["Lv" + user.level];
 
-  const embed = new EmbedBuilder()
-    .setColor(color)
-    .setTitle("💫 **별의각인 결과**")
-    .setDescription(
+    const engraveButton = new ButtonBuilder()
+      .setCustomId(`engrave_upgrade_${Date.now()}`)
+      .setLabel("각인 시도")
+      .setStyle(ButtonStyle.Primary);
+
+    const stopButton = new ButtonBuilder()
+      .setCustomId("stop")
+      .setLabel("그만하기")
+      .setStyle(ButtonStyle.Danger);
+
+    const row = new ActionRowBuilder().addComponents(engraveButton, stopButton);
+
+    const embed = new EmbedBuilder()
+      .setColor(color)
+      .setTitle("💫 **별의각인 결과**")
+      .setDescription(
 `${afterStars ? `${afterStars}\n\n` : ""}${resultText}
 
 ${resultData ? `**성공:** ${resultData.success}%
@@ -3929,204 +3996,213 @@ ${resultData ? `**성공:** ${resultData.success}%
 **보유 각인석:** ${user.inventory.engraveStone}개
 
 **1분 동안 작동이 없으면 창이 자동으로 닫힌다밍!**`
-    )
-    .setImage(weaponData?.image || null);
+      )
+      .setImage(weaponData?.image || null);
 
-  return interaction.update({
-    embeds: [embed],
-    components: interaction.message.components
-  });
+    await interaction.editReply({
+      embeds: [embed],
+      components: [row]
+    });
+
+  } finally {
+    processingInteractions.delete(processKey);
+  }
 }
 
 /* ---------------- 강화 버튼------------- */
-if (interaction.customId === "upgrade") {
+if (interaction.customId.startsWith("upgrade_")) {
   const id = interaction.user.id;
 
-  const processKey = interaction.message.id;
+  const processKey = interaction.customId;
 
-if (processingInteractions.has(processKey)) {
-  return interaction.reply({
-    content: "**이미 처리중인 강화다밍!**",
-    ephemeral: true
-  });
-}
-
-processingInteractions.add(processKey);
-
-  const collector = upgradeCollectors.get(id);
-  if (collector) {
-    collector.resetTimer();
-  }
-
-  if (!users[id]) {
-    activeInteractions.delete(id);
-    upgradeCollectors.delete(id);
-
+  if (processingInteractions.has(processKey)) {
     return interaction.reply({
-      content: "❌ **먼저 /가입 을 해줘야 한다밍!**",
-      flags: 64
+      content: "**이미 처리중인 강화다밍!**",
+      ephemeral: true
     });
   }
 
-  const user = ensureUser(id);
-  const beforeLevel = user.level;
+  processingInteractions.add(processKey);
 
-  if (beforeLevel >= 50) {
-    activeInteractions.delete(id);
-    upgradeCollectors.delete(id);
+  try {
+    await interaction.deferUpdate();
 
-    return interaction.reply({
-      content: "🏆 **최대 강화는 Lv50 이다밍!**",
-      flags: 64
-    });
-  }
+    const collector = upgradeCollectors.get(id);
+    if (collector) {
+      collector.resetTimer();
+    }
 
-  const data = gameData.upgrade[beforeLevel];
+    if (!users[id]) {
+      activeInteractions.delete(id);
+      upgradeCollectors.delete(id);
 
-  if (!data) {
-    activeInteractions.delete(id);
-    upgradeCollectors.delete(id);
+      processingInteractions.delete(processKey);
 
-    return interaction.reply({
-      content: "❌ **강화 데이터가 없다밍!**",
-      flags: 64
-    });
-  }
+      return interaction.editReply({
+        content: "❌ **먼저 /가입 을 해줘야 한다밍!**",
+        embeds: [],
+        components: []
+      });
+    }
 
-  let cost = data.cost;
-  let wolfDiscount = 0;
+    const user = ensureUser(id);
+    const beforeLevel = user.level;
 
-  if (user.pet?.key === "wolf") {
-    const pet = getPetByKey("wolf");
-    if (pet?.option?.values) {
-      const levels = Object.keys(pet.option.values)
-        .map(Number)
-        .sort((a, b) => b - a);
+    if (beforeLevel >= 50) {
+      activeInteractions.delete(id);
+      upgradeCollectors.delete(id);
 
-      for (const lvl of levels) {
-        if ((user.pet.level || 1) >= lvl) {
-          wolfDiscount = pet.option.values[lvl];
-          break;
+      processingInteractions.delete(processKey);
+
+      return interaction.editReply({
+        content: "🏆 **최대 강화는 Lv50 이다밍!**",
+        embeds: [],
+        components: []
+      });
+    }
+
+    const data = gameData.upgrade[beforeLevel];
+
+    if (!data) {
+      activeInteractions.delete(id);
+      upgradeCollectors.delete(id);
+
+      processingInteractions.delete(processKey);
+
+      return interaction.editReply({
+        content: "❌ **강화 데이터가 없다밍!**",
+        embeds: [],
+        components: []
+      });
+    }
+
+    let cost = data.cost;
+    let wolfDiscount = 0;
+
+    if (user.pet?.key === "wolf") {
+      const pet = getPetByKey("wolf");
+
+      if (pet?.option?.values) {
+        const levels = Object.keys(pet.option.values)
+          .map(Number)
+          .sort((a, b) => b - a);
+
+        for (const lvl of levels) {
+          if ((user.pet.level || 1) >= lvl) {
+            wolfDiscount = pet.option.values[lvl];
+            break;
+          }
         }
+      }
+
+      cost = Math.floor(data.cost * (1 - wolfDiscount));
+    }
+
+    const successRate = data.success;
+    const destroyRate = data.destroy;
+
+    if (user.money < cost) {
+      activeInteractions.delete(id);
+      upgradeCollectors.delete(id);
+
+      const embed = new EmbedBuilder()
+        .setColor("#ff0000")
+        .setTitle("<:money:1489876006893518968> **잔액 부족**")
+        .setDescription(
+`<:money:1489876006893518968> **필요 금액: ${cost.toLocaleString()}원**`
+        );
+
+      processingInteractions.delete(processKey);
+
+      return interaction.editReply({
+        embeds: [embed],
+        components: []
+      });
+    }
+
+    user.money -= cost;
+
+    const rand = Math.random() * 100;
+
+    let result = "";
+    let color = "#57F287";
+
+    if (rand <= destroyRate) {
+      user.level = 1;
+      result = "💥 **무기 파괴됐다밍... Lv1로 초기화다밍!**";
+      color = "#ff0000";
+    } else if (rand <= destroyRate + successRate) {
+      user.level += 1;
+      result = `✅ **강화 성공이다밍! → Lv${user.level}**`;
+      color = "#57F287";
+    } else {
+      color = "#ff0000";
+
+      if (beforeLevel % 10 === 0) {
+        result = `❌ **강화 실패다밍... 단계 유지다밍 (Lv${user.level})**`;
+      } else {
+        user.level = Math.max(1, user.level - 1);
+        result = `❌ **강화 실패다밍... → Lv${user.level}**`;
       }
     }
 
-    cost = Math.floor(data.cost * (1 - wolfDiscount));
-  }
+    if (wolfDiscount > 0) {
+      result += `\n**울피의 고유옵션으로 강화 비용 ${Math.floor(wolfDiscount * 100)}% 할인됐다밍!**`;
+    }
 
-  const successRate = data.success;
-  const destroyRate = data.destroy;
+    if (user.level !== beforeLevel) {
+      user.durability = 100;
+    }
 
-  if (user.money < cost) {
-    activeInteractions.delete(id);
-    upgradeCollectors.delete(id);
+    saveUsers();
+
+    const currentData = gameData.upgrade[user.level] || data;
+    const weaponData = gameData.weapons["Lv" + user.level];
+
+    let nextCost = currentData.cost;
+    let nextWolfDiscount = 0;
+
+    if (user.pet?.key === "wolf") {
+      const pet = getPetByKey("wolf");
+
+      if (pet?.option?.values) {
+        const levels = Object.keys(pet.option.values)
+          .map(Number)
+          .sort((a, b) => b - a);
+
+        for (const lvl of levels) {
+          if ((user.pet.level || 1) >= lvl) {
+            nextWolfDiscount = pet.option.values[lvl];
+            break;
+          }
+        }
+      }
+
+      nextCost = Math.floor(currentData.cost * (1 - nextWolfDiscount));
+    }
+
+    const nextDiscountText =
+      nextWolfDiscount > 0
+        ? `\n**울피의 고유옵션 할인: -${Math.floor(nextWolfDiscount * 100)}% 적용됐다밍!**`
+        : "";
+
+    const upgradeButton = new ButtonBuilder()
+      .setCustomId(`upgrade_${Date.now()}`)
+      .setLabel("계속강화하기")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(user.level >= 50);
+
+    const stopButton = new ButtonBuilder()
+      .setCustomId("stop")
+      .setLabel("강화그만하기")
+      .setStyle(ButtonStyle.Danger);
+
+    const row = new ActionRowBuilder().addComponents(upgradeButton, stopButton);
 
     const embed = new EmbedBuilder()
-      .setColor("#ff0000")
-      .setTitle("<:money:1489876006893518968> **잔액 부족**")
+      .setColor(color)
+      .setTitle("<:enforce:1490211661691228341> **무기 강화**")
       .setDescription(
-`<:money:1489876006893518968> **필요 금액: ${cost.toLocaleString()}원**`
-      );
-
-    return interaction.update({
-      embeds: [embed],
-      components: []
-    });
-  }
-
-  user.money -= cost;
-
-  const rand = Math.random() * 100;
-
-  let result = "";
-  let color = "#57F287";
-
-  if (rand <= destroyRate) {
-    user.level = 1;
-    result = "💥 **무기 파괴됐다밍... Lv1로 초기화다밍!**";
-    color = "#ff0000";
-  } else if (rand <= destroyRate + successRate) {
-    user.level += 1;
-    result = `✅ **강화 성공이다밍! → Lv${user.level}**`;
-    color = "#57F287";
-  } else {
-    color = "#ff0000";
-
-    if (beforeLevel % 10 === 0) {
-      result = `❌ **강화 실패다밍... 단계 유지다밍 (Lv${user.level})**`;
-    } else {
-      user.level = Math.max(1, user.level - 1);
-      result = `❌ **강화 실패다밍... → Lv${user.level}**`;
-    }
-  }
-
-  if (wolfDiscount > 0) {
-    result += `\n**울피의 고유옵션으로 강화 비용 ${Math.floor(wolfDiscount * 100)}% 할인됐다밍!**`;
-  }
-
-  if (user.level !== beforeLevel) {
-    user.durability = 100;
-  }
-
-  saveUsers();
-
-  const currentData = gameData.upgrade[user.level] || data;
-  const weaponData = gameData.weapons["Lv" + user.level];
-
-  if (!weaponData) {
-    activeInteractions.delete(id);
-    upgradeCollectors.delete(id);
-
-    return interaction.reply({
-      content: `❌ **Lv${user.level} 무기 데이터가 없다밍!**`,
-      flags: 64
-    });
-  }
-
-  let nextCost = currentData.cost;
-  let nextWolfDiscount = 0;
-
-  if (user.pet?.key === "wolf") {
-    const pet = getPetByKey("wolf");
-
-    if (pet?.option?.values) {
-      const levels = Object.keys(pet.option.values)
-        .map(Number)
-        .sort((a, b) => b - a);
-
-      for (const lvl of levels) {
-        if ((user.pet.level || 1) >= lvl) {
-          nextWolfDiscount = pet.option.values[lvl];
-          break;
-        }
-      }
-    }
-
-    nextCost = Math.floor(currentData.cost * (1 - nextWolfDiscount));
-  }
-
-  const nextDiscountText =
-    nextWolfDiscount > 0
-      ? `\n**울피의 고유옵션 할인: -${Math.floor(nextWolfDiscount * 100)}% 적용됐다밍!**`
-      : "";
-
-  const upgradeButton = new ButtonBuilder()
-    .setCustomId("upgrade")
-    .setLabel("계속강화하기")
-    .setStyle(ButtonStyle.Primary)
-    .setDisabled(user.level >= 50);
-
-  const stopButton = new ButtonBuilder()
-    .setCustomId("stop")
-    .setLabel("강화그만하기")
-    .setStyle(ButtonStyle.Danger);
-
-  const row = new ActionRowBuilder().addComponents(upgradeButton, stopButton);
-
-  const embed = new EmbedBuilder()
-    .setColor(color)
-    .setTitle("<:enforce:1490211661691228341> **무기 강화**")
-    .setDescription(
 `<:weapon:1489875492051091536> **현재 무기**
 **Lv${user.level} 「${weaponData.name}」**
 
@@ -4140,18 +4216,22 @@ processingInteractions.add(processKey);
 ${result}
 
 **1분 동안 작동이 없으면 창이 자동으로 닫힌다밍!**`
-    )
-    .setImage(weaponData.image);
+      )
+      .setImage(weaponData.image);
 
-  if (user.level >= 50) {
-    activeInteractions.delete(id);
-    upgradeCollectors.delete(id);
+    if (user.level >= 50) {
+      activeInteractions.delete(id);
+      upgradeCollectors.delete(id);
+    }
+
+    await interaction.editReply({
+      embeds: [embed],
+      components: [row]
+    });
+
+  } finally {
+    processingInteractions.delete(processKey);
   }
-
-  return interaction.update({
-    embeds: [embed],
-    components: [row]
-  });
 }
 
 /* ---------------- 무기판매 버튼 ---------------- */
@@ -5607,9 +5687,9 @@ if (commandName === "강화") {
   }
 
   const upgradeButton = new ButtonBuilder()
-    .setCustomId("upgrade")
-    .setLabel("계속강화하기")
-    .setStyle(ButtonStyle.Primary);
+  .setCustomId(`upgrade_${Date.now()}`)
+  .setLabel("계속강화하기")
+  .setStyle(ButtonStyle.Primary);
 
   const stopButton = new ButtonBuilder()
     .setCustomId("stop")
@@ -7420,22 +7500,13 @@ if (commandName === "작물구매") {
 /* ---------------- 작물시세 ---------------- */
 if (commandName === "작물시세") {
   try {
-    const now = Date.now();
-    const marketCooldown = 30 * 1000;
+  if (!marketState.market) marketState.market = {};
 
-    if (!marketState.market) marketState.market = {};
-    if (marketState.lastUpdate === undefined) marketState.lastUpdate = 0;
-
-    if (!marketState.lastUpdate || now - marketState.lastUpdate >= marketCooldown) {
-      if (Object.keys(marketState.market).length === 0) {
-        marketState.market = generateMarket();
-      } else {
-        marketState.market = updateMarket(marketState.market);
-      }
-
-      marketState.lastUpdate = now;
-      saveMarket();
-    }
+if (Object.keys(marketState.market).length === 0) {
+  marketState.market = generateMarket();
+  marketState.lastUpdate = Date.now();
+  saveMarket();
+}
 
     const m = marketState.market;
 
@@ -7479,9 +7550,9 @@ ${price.toLocaleString()}원
       .join("");
 
     const embed = new EmbedBuilder()
-      .setColor("#2b2d31")
-      .setTitle("**작물 시세**")
-      .setDescription(marketText);
+    .setColor("#2b2d31")
+    .setTitle("**작물 시세**")
+    .setDescription(marketText);
 
     return interaction.reply({
       embeds: [embed]
@@ -7738,10 +7809,10 @@ if (commandName === "별의각인") {
     )
     .setImage(weaponData?.image || null);
 
-  const engraveButton = new ButtonBuilder()
-    .setCustomId("engrave_upgrade")
-    .setLabel("각인 시도")
-    .setStyle(ButtonStyle.Primary);
+const engraveButton = new ButtonBuilder()
+  .setCustomId(`engrave_upgrade_${Date.now()}`)
+  .setLabel("각인 시도")
+  .setStyle(ButtonStyle.Primary);
 
   const stopButton = new ButtonBuilder()
     .setCustomId("stop")
