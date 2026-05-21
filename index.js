@@ -3311,52 +3311,42 @@ if (interaction.customId === "open_mingBundle") {
   let resultDetail = "";
 
 if (result.type === "money") {
-  user.money += result.value;
   resultDetail = `<:money:1489876006893518968> **최종 잔액: ${user.money.toLocaleString()}원 (+${result.value.toLocaleString()}원)**`;
 }
 
 if (result.type === "peach") {
-  user.farmCrops.peach += result.value;
   resultDetail = `🍑 **복숭아: ${user.farmCrops.peach.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "strawberry") {
-  user.farmCrops.strawberry += result.value;
   resultDetail = `🍓 **딸기: ${user.farmCrops.strawberry.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "shineMuscat") {
-  user.farmCrops.shineMuscat += result.value;
   resultDetail = `<:grape:1489872445555867759> **샤인머스켓: ${user.farmCrops.shineMuscat.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "apple") {
-  user.farmCrops.apple += result.value;
   resultDetail = `🍎 **사과: ${user.farmCrops.apple.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "repairStone") {
-  user.inventory.repairStone += result.value;
   resultDetail = `<:repair:1489875654886297640> **수리석: ${user.inventory.repairStone.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "bankruptcyPaper") {
-  user.inventory.bankruptcyPaper += result.value;
   resultDetail = `📜 **파산신청서: ${user.inventory.bankruptcyPaper.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "randomTransferCoupon") {
-  user.inventory.randomTransferCoupon += result.value;
   resultDetail = `<:coupon2:1497620249766268938> **송금 랜덤 쿠폰: ${user.inventory.randomTransferCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "depositDoubleCoupon") {
-  user.inventory.depositDoubleCoupon += result.value;
   resultDetail = `<:coupon:1496892441213665492> **송금 더블 쿠폰: ${user.inventory.depositDoubleCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
 if (result.type === "petFood") {
-  user.inventory.petFood += result.value;
   resultDetail = `<:food:1501244821983989831> **펫먹이: ${user.inventory.petFood.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
@@ -7028,7 +7018,6 @@ description =
 `${failMessages[Math.floor(Math.random() * failMessages.length)]}
 ${gotMingBundle
 ? `
-
 **오늘 가능한 탐험을 전부 완료했다밍! 너에게 밍꾸러미를 선물해주겠다밍!**
 
 **<:mingbox:1504908502609432668>: ${user.inventory.mingBundle.toLocaleString()}개 (+1)**`
@@ -7538,16 +7527,16 @@ if (Object.keys(marketState.market).length === 0) {
       }
     ];
 
-    const marketText = cropList
-      .map(crop => {
-        const price = Number(m[crop.key] || 0);
+const marketText = cropList
+  .map(crop => {
+    const price = Number(m[crop.key] || 0);
 
-        return `${crop.emoji} **${crop.name}**
+    return `${crop.emoji} **${crop.name}**
 \`\`\`
 ${price.toLocaleString()}원
 \`\`\``;
-      })
-      .join("");
+  })
+  .join("");
 
     const embed = new EmbedBuilder()
     .setColor("#2b2d31")
