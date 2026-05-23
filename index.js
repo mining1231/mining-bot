@@ -427,7 +427,8 @@ const defaultUser = {
     wildGinsengPiece: 0,
     petFood: 0,
     bankruptcyPaper: 0,
-    mingBundle: 0
+    mingBundle: 0,
+    miningBox: 0
   },
 
   shopPurchase: {
@@ -1609,6 +1610,10 @@ if (user.inventory.bankruptcyPaper === undefined) {
   user.inventory.bankruptcyPaper = 0;
 }
 
+if (user.inventory.miningBox === undefined) {
+  user.inventory.miningBox = 0;
+}
+
   if (!user.shopPurchase) user.shopPurchase = {};
   if (user.shopPurchase.lastResetDate === undefined) user.shopPurchase.lastResetDate = "";
   if (user.shopPurchase.engraveStoneBoughtToday === undefined) user.shopPurchase.engraveStoneBoughtToday = 0;
@@ -1764,7 +1769,15 @@ function getBagItemMeta() {
       description:
         itemData?.mingBundle?.description ||
         "농사, 카페, 탐험을 모두 완료하면 받을 수 있는 꾸러미입니다."
-    }
+    },
+
+    miningBox: {
+      label: itemData?.miningBox?.name || "미닝박스",
+      emoji: itemData?.miningBox?.emoji || "<:miningbox:1507826400189747210>",
+      description:
+        itemData?.miningBox?.description ||
+        "사용 시 특별한 보상 중 하나를 획득할 수 있습니다."
+    },
   };
 }
 
@@ -2973,6 +2986,7 @@ if (interaction.isModalSubmit() && interaction.customId === "coupon_use_modal") 
     bankruptcyPaper: { name: "파산신청서", emoji: "📜" },
     mingBundle: { name: "밍꾸러미", emoji: "<:mingbox:1504908502609432668>" },
     petFood: { name: "펫먹이", emoji: "<:food:1501244821983989831>" },
+    miningBox: { name: "미닝박스", emoji: "<:miningbox:1507826400189747210>" },
   };
 
   const cropMap = {
@@ -3311,7 +3325,7 @@ if (interaction.customId === "open_mingBundle") {
   let resultDetail = "";
 
 if (result.type === "money") {
-  resultDetail = `<:money:1489876006893518968> **최종 잔액: ${user.money.toLocaleString()}원 (+${result.value.toLocaleString()}원)**`;
+  resultDetail = `<:money:1489876006893518968> **잔액: ${user.money.toLocaleString()}원 (+${result.value.toLocaleString()}원)**`;
 }
 
 if (result.type === "peach") {
@@ -3361,6 +3375,129 @@ if (result.type === "petFood") {
 
 ${resultDetail}
 남은 밍꾸러미 개수: ${user.inventory.mingBundle.toLocaleString()}개`
+    );
+
+  return interaction.update({
+    embeds: [embed],
+    components: []
+  });
+}
+
+function openMiningBox() {
+  const rand = Math.random() * 100;
+
+  // 💰 돈 18%
+  if (rand < 18) {
+    return {
+      type: "money",
+      value: Math.floor(Math.random() * (200000000 - 150000000 + 1)) + 150000000
+    };
+  }
+
+  // 🌿 산삼 10%
+  if (rand < 28) {
+    return {
+      type: "wildGinseng",
+      value: 2
+    };
+  }
+
+  // 🍎 사과 18%
+  if (rand < 46) {
+    return {
+      type: "apple",
+      value: 3
+    };
+  }
+
+  // 🎟️ 송금 랜덤 쿠폰 18%
+  if (rand < 64) {
+    return {
+      type: "randomTransferCoupon",
+      value: 2
+    };
+  }
+
+  // 🎟️ 송금 더블 쿠폰 18%
+  if (rand < 82) {
+    return {
+      type: "depositDoubleCoupon",
+      value: 2
+    };
+  }
+
+  // 🔧 수리석 18%
+  return {
+    type: "repairStone",
+    value: 2
+  };
+}
+
+if (interaction.customId === "open_miningBox") {
+  const id = interaction.user.id;
+  const user = ensureUser(id);
+
+  if (!user.inventory.miningBox || user.inventory.miningBox <= 0) {
+    return interaction.reply({
+      content: "**보유한 미닝박스가 없다밍!**",
+      ephemeral: true
+    });
+  }
+
+  user.inventory.miningBox -= 1;
+
+  const result = openMiningBox();
+
+  if (result.type === "money") user.money += result.value;
+  if (result.type === "wildGinseng") user.farmCrops.wildGinseng += result.value;
+  if (result.type === "apple") user.farmCrops.apple += result.value;
+  if (result.type === "randomTransferCoupon") user.inventory.randomTransferCoupon += result.value;
+  if (result.type === "depositDoubleCoupon") user.inventory.depositDoubleCoupon += result.value;
+  if (result.type === "repairStone") user.inventory.repairStone += result.value;
+
+  let resultText = "";
+  let resultDetail = "";
+
+  if (result.type === "money") {
+    resultText = `<:money:1489876006893518968> **${result.value.toLocaleString()}원을 획득했다밍!**`;
+    resultDetail = `<:money:1489876006893518968> **잔액: ${user.money.toLocaleString()}원 (+${result.value.toLocaleString()}원)**`;
+  }
+
+  if (result.type === "wildGinseng") {
+    resultText = `<:wildGinseng:1489948179615977553> **산삼 ${result.value.toLocaleString()}개를 획득했다밍!**`;
+    resultDetail = `<:wildGinseng:1489948179615977553> **산삼: ${user.farmCrops.wildGinseng.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+  }
+
+  if (result.type === "apple") {
+    resultText = `🍎 **사과 ${result.value.toLocaleString()}개를 획득했다밍!**`;
+    resultDetail = `🍎 **사과: ${user.farmCrops.apple.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+  }
+
+  if (result.type === "randomTransferCoupon") {
+    resultText = `<:coupon2:1497620249766268938> **송금 랜덤 쿠폰 ${result.value.toLocaleString()}개를 획득했다밍!**`;
+    resultDetail = `<:coupon2:1497620249766268938> **송금 랜덤 쿠폰: ${user.inventory.randomTransferCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+  }
+
+  if (result.type === "depositDoubleCoupon") {
+    resultText = `<:coupon:1496892441213665492> **송금 더블 쿠폰 ${result.value.toLocaleString()}개를 획득했다밍!**`;
+    resultDetail = `<:coupon:1496892441213665492> **송금 더블 쿠폰: ${user.inventory.depositDoubleCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+  }
+
+  if (result.type === "repairStone") {
+    resultText = `<:repair:1489875654886297640> **수리석 ${result.value.toLocaleString()}개를 획득했다밍!**`;
+    resultDetail = `<:repair:1489875654886297640> **수리석: ${user.inventory.repairStone.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+  }
+
+  saveUsers();
+
+  const embed = new EmbedBuilder()
+    .setColor("#facc15")
+    .setTitle("<:miningbox:1507826400189747210> **미닝박스 사용 결과**")
+    .setDescription(
+`${resultText}
+
+${resultDetail}
+남은 미닝박스 개수: ${user.inventory.miningBox.toLocaleString()}개`
     );
 
   return interaction.update({
@@ -4368,12 +4505,13 @@ processingInteractions.add(processKey);
 복권은 쿨타임이 1시간입니다.`
       );
 
-    activeInteractions.delete(id);
+activeInteractions.delete(id);
+processingInteractions.delete(processKey);
 
-    return interaction.update({
-      embeds: [successEmbed],
-      components: [disabledRow]
-    });
+return interaction.update({
+  embeds: [successEmbed],
+  components: [disabledRow]
+});
   }
 
   saveUsers();
@@ -4392,12 +4530,13 @@ processingInteractions.add(processKey);
 복권은 쿨타임이 1시간입니다.`
     );
 
-  activeInteractions.delete(id);
+activeInteractions.delete(id);
+processingInteractions.delete(processKey);
 
-  return interaction.update({
-    embeds: [failEmbed],
-    components: [disabledRow]
-  });
+return interaction.update({
+  embeds: [failEmbed],
+  components: [disabledRow]
+});
 }
 
 return; 
@@ -4583,6 +4722,27 @@ if (selectedKey === "mingBundle") {
 열면 여러 보상 중 하나를 획득할 수 있다밍!**
 
 <:mingbox:1504908502609432668>: ${amount}개`
+        )
+    ],
+    components: [new ActionRowBuilder().addComponents(openButton)],
+  });
+}
+
+if (selectedKey === "miningBox") {
+  const openButton = new ButtonBuilder()
+    .setCustomId("open_miningBox")
+    .setLabel("열기")
+    .setStyle(ButtonStyle.Success);
+
+  return interaction.reply({
+    embeds: [
+      new EmbedBuilder()
+        .setColor("#facc15")
+        .setTitle("<:miningbox:1507826400189747210> **미닝박스**")
+        .setDescription(
+`**미닝박스를 열면 특별한 보상 중 하나를 획득할 수 있다밍!**
+
+<:miningbox:1507826400189747210>: ${amount}개`
         )
     ],
     components: [new ActionRowBuilder().addComponents(openButton)],
@@ -6490,10 +6650,10 @@ if (commandName === "통장잔고") {
   const user = ensureUser(id);
 
   const sortedUsers = Object.entries(users)
+    .filter(([userId]) => !isRankingExcluded(userId))
     .sort((a, b) => b[1].money - a[1].money);
 
   const rank = sortedUsers.findIndex(([uid]) => uid === id) + 1;
-
 
   const embed = new EmbedBuilder()
     .setColor("#3B82F6")
@@ -7015,9 +7175,9 @@ if (user.exploreCount === 100) {
     ];
 
 description =
-`${failMessages[Math.floor(Math.random() * failMessages.length)]}
-${gotMingBundle
+`${failMessages[Math.floor(Math.random() * failMessages.length)]}${gotMingBundle
 ? `
+
 **오늘 가능한 탐험을 전부 완료했다밍! 너에게 밍꾸러미를 선물해주겠다밍!**
 
 **<:mingbox:1504908502609432668>: ${user.inventory.mingBundle.toLocaleString()}개 (+1)**`
@@ -8003,7 +8163,8 @@ if (commandName === "아이템지급") {
     wildGinsengPiece: "산삼조각",
     bankruptcyPaper: "파산신청서",
     mingBundle: "밍꾸러미",
-    petFood: "펫먹이"
+    petFood: "펫먹이",
+    miningBox: "미닝박스"
   };
 
   if (!itemMap[itemKey]) {
@@ -8235,7 +8396,8 @@ if (commandName === "쿠폰생성") {
     wildGinsengPiece: "산삼조각",
     bankruptcyPaper: "파산신청서",
     mingBundle: "밍꾸러미",
-    petFood: "펫먹이"
+    petFood: "펫먹이",
+    miningBox: "미닝박스"
   };
 
   const cropMap = {

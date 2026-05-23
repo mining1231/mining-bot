@@ -59,6 +59,13 @@ mingBundle: {
   type: "usable"
 },
 
+miningBox: {
+  name: "미닝박스",
+  emoji: "<:miningbox:1507826400189747210>",
+  description: "사용 시 특별한 보상 중 하나를 획득할 수 있는 상자입니다.",
+  type: "usable"
+},
+
 };
 
 module.exports = itemData;
