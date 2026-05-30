@@ -2348,10 +2348,21 @@ ctx.fillText(`${hunger}%`, startX + barWidth + 15, startY - 2);
   return canvas.toBuffer("image/png");
 }
 
+let infoBackgroundCache = null;
+let infoLevelIconCache = {};
+let infoStarCache = {
+  blue: null,
+  pink: null,
+  yellow: null
+};
 async function drawInfoImage(interaction, user, displayUser = interaction.user) {
-  const background = await loadImage(
-    path.join(__dirname, "assets", "info", "base.png")
-  );
+  if (!infoBackgroundCache) {
+    infoBackgroundCache = await loadImage(
+      path.join(__dirname, "assets", "info", "base.png")
+    );
+  }
+
+  const background = infoBackgroundCache;
 
   const canvas = createCanvas(background.width, background.height);
   const ctx = canvas.getContext("2d");
@@ -2365,7 +2376,7 @@ async function drawInfoImage(interaction, user, displayUser = interaction.user) 
 const avatar = await loadImage(
   displayUser.displayAvatarURL({
     extension: "png",
-    size: 256
+    size: 128
   })
 );
 
@@ -2475,15 +2486,13 @@ ctx.fillText(
 // 농사 레벨 아이콘
 // =========================
 
-const farmLevelIcon = await loadImage(
-  path.join(
-    __dirname,
-    "assets",
-    "info",
-    "level",
-    `${user.farmLevel}.png`
-  )
-);
+if (!infoLevelIconCache[user.farmLevel]) {
+  infoLevelIconCache[user.farmLevel] = await loadImage(
+    path.join(__dirname, "assets", "info", "level", `${user.farmLevel}.png`)
+  );
+}
+
+const farmLevelIcon = infoLevelIconCache[user.farmLevel];
 
 ctx.drawImage(
   farmLevelIcon,
@@ -2514,15 +2523,13 @@ ctx.textAlign = "left";
 // 카페 레벨 아이콘
 // =========================
 
-const cafeLevelIcon = await loadImage(
-  path.join(
-    __dirname,
-    "assets",
-    "info",
-    "level",
-    `${user.gatherLevel}.png`
-  )
-);
+if (!infoLevelIconCache[user.gatherLevel]) {
+  infoLevelIconCache[user.gatherLevel] = await loadImage(
+    path.join(__dirname, "assets", "info", "level", `${user.gatherLevel}.png`)
+  );
+}
+
+const cafeLevelIcon = infoLevelIconCache[user.gatherLevel];
 
 ctx.drawImage(
   cafeLevelIcon,
@@ -2650,17 +2657,27 @@ const blueStars = Math.floor(user.engraveLevel / 10);
 const pinkStars = Math.floor((user.engraveLevel % 10) / 5);
 const yellowStars = user.engraveLevel % 5;
 
-const blueStarImg = await loadImage(
-  path.join(__dirname, "assets", "info", "star", "10.png")
-);
+if (!infoStarCache.blue) {
+  infoStarCache.blue = await loadImage(
+    path.join(__dirname, "assets", "info", "star", "10.png")
+  );
+}
 
-const pinkStarImg = await loadImage(
-  path.join(__dirname, "assets", "info", "star", "5.png")
-);
+if (!infoStarCache.pink) {
+  infoStarCache.pink = await loadImage(
+    path.join(__dirname, "assets", "info", "star", "5.png")
+  );
+}
 
-const yellowStarImg = await loadImage(
-  path.join(__dirname, "assets", "info", "star", "1.png")
-);
+if (!infoStarCache.yellow) {
+  infoStarCache.yellow = await loadImage(
+    path.join(__dirname, "assets", "info", "star", "1.png")
+  );
+}
+
+const blueStarImg = infoStarCache.blue;
+const pinkStarImg = infoStarCache.pink;
+const yellowStarImg = infoStarCache.yellow;
 
 // 시작 위치
 let starX = 1020;
@@ -3206,7 +3223,16 @@ weaponSellCollectors.delete(id);
       });
     }
 
-   if (interaction.customId === "open_questionBox") {
+if (interaction.customId.startsWith("open_questionBox_")) {
+  const ownerId = interaction.customId.replace("open_questionBox_", "");
+
+  if (interaction.user.id !== ownerId) {
+    return interaction.reply({
+      content: "❌ **이 물음표박스는 명령어를 실행한 사람만 열 수 있다밍!**",
+      flags: 64
+    });
+  }
+
   const id = interaction.user.id;
   const user = ensureUser(id);
 
@@ -3283,6 +3309,10 @@ if (result.type === "depositDoubleCoupon") {
     embeds: [
       new EmbedBuilder()
         .setColor("#22c55e")
+        .setAuthor({
+  name: interaction.user.username,
+  iconURL: interaction.user.displayAvatarURL()
+    })
         .setTitle("<:box:1492879878838816849> 물음표박스 결과")
         .setDescription(
 
@@ -3296,7 +3326,16 @@ ${rewardStatusText}
   });
 }
 
-if (interaction.customId === "open_mingBundle") {
+if (interaction.customId.startsWith("open_mingBundle_")) {
+  const ownerId = interaction.customId.replace("open_mingBundle_", "");
+
+  if (interaction.user.id !== ownerId) {
+    return interaction.reply({
+      content: "❌ **이 밍꾸러미는 명령어를 실행한 사람만 열 수 있다밍!**",
+      flags: 64
+    });
+  }
+
   const id = interaction.user.id;
   const user = ensureUser(id);
 
@@ -3368,7 +3407,11 @@ if (result.type === "petFood") {
 
   const embed = new EmbedBuilder()
     .setColor("#f9a8d4")
-    .setTitle("<:mingbox:1504908502609432668> **밍꾸러미 사용 결과**")
+    .setAuthor({
+  name: interaction.user.username,
+  iconURL: interaction.user.displayAvatarURL()
+  })
+    .setTitle("<:mingbox:1504908502609432668> **밍꾸러미 결과**")
     .setDescription(
 
 `${result.text}
@@ -3406,7 +3449,7 @@ function openMiningBox() {
   if (rand < 46) {
     return {
       type: "apple",
-      value: 3
+      value: 4
     };
   }
 
@@ -3433,7 +3476,16 @@ function openMiningBox() {
   };
 }
 
-if (interaction.customId === "open_miningBox") {
+if (interaction.customId.startsWith("open_miningBox_")) {
+  const ownerId = interaction.customId.replace("open_miningBox_", "");
+
+  if (interaction.user.id !== ownerId) {
+    return interaction.reply({
+      content: "❌ **이 미닝박스는 명령어를 실행한 사람만 열 수 있다밍!**",
+      flags: 64
+    });
+  }
+
   const id = interaction.user.id;
   const user = ensureUser(id);
 
@@ -3492,7 +3544,11 @@ if (interaction.customId === "open_miningBox") {
 
   const embed = new EmbedBuilder()
     .setColor("#facc15")
-    .setTitle("<:miningbox:1507826400189747210> **미닝박스 사용 결과**")
+.setAuthor({
+  name: interaction.user.username,
+  iconURL: interaction.user.displayAvatarURL()
+})
+    .setTitle("<:miningbox:1507826400189747210> **미닝박스 결과**")
     .setDescription(
 `${resultText}
 
@@ -4638,7 +4694,7 @@ if (selectedKey === "randomTransferCoupon") {
  // 📦 물음표박스
 if (selectedKey === "questionBox") {
   const openButton = new ButtonBuilder()
-    .setCustomId("open_questionBox")
+    .setCustomId(`open_questionBox_${interaction.user.id}`)
     .setLabel("열기")
     .setStyle(ButtonStyle.Success);
 
@@ -4708,7 +4764,7 @@ if (selectedKey === "bankruptcyPaper") {
 // 밍꾸러미
 if (selectedKey === "mingBundle") {
   const openButton = new ButtonBuilder()
-    .setCustomId("open_mingBundle")
+    .setCustomId(`open_mingBundle_${interaction.user.id}`)
     .setLabel("열기")
     .setStyle(ButtonStyle.Success);
 
@@ -4730,7 +4786,7 @@ if (selectedKey === "mingBundle") {
 
 if (selectedKey === "miningBox") {
   const openButton = new ButtonBuilder()
-    .setCustomId("open_miningBox")
+    .setCustomId(`open_miningBox_${interaction.user.id}`)
     .setLabel("열기")
     .setStyle(ButtonStyle.Success);
 
@@ -7152,7 +7208,7 @@ if (user.exploreCount === 100) {
     description =
 `**깊은 산기슭에서 묘한 향을 따라가 보니, 귀한 산삼조각이 모습을 드러냈다밍!**
 
-<:piece:1500337696525254658> **산삼조각: ${user.inventory.wildGinsengPiece.toLocaleString()}개**
+<:piece:1500337696525254658> **산삼조각: ${user.inventory.wildGinsengPiece.toLocaleString()}개 (+1)**
 **남은 탐험 횟수: ${100 - user.exploreCount}회**`;
   }
 
@@ -7163,7 +7219,7 @@ if (user.exploreCount === 100) {
     description =
 `**깊은 동굴을 탐사하던 중, 장비 복원에 쓰이는 희귀한 수리석을 손에 넣었다밍!**
 
-<:repair:1489875654886297640> **수리석: ${user.inventory.repairStone.toLocaleString()}개**
+<:repair:1489875654886297640> **수리석: ${user.inventory.repairStone.toLocaleString()}개 (+1)**
 **남은 탐험 횟수: ${100 - user.exploreCount}회**`;
   }
 
@@ -8101,14 +8157,29 @@ if (commandName === "돈지급") {
   }
 
   const targetUser = ensureUser(target.id);
-  targetUser.money += amount;
+targetUser.money += amount;
 
-  saveUsers();
+saveUsers();
 
-  return interaction.reply({
-    content: `${target.username}님에게 ${amount.toLocaleString()}원을 지급했습니다.`,
-    ephemeral: true
-  });
+try {
+  const dmEmbed = new EmbedBuilder()
+    .setColor("#3B82F6")
+    .setTitle("<:money:1489876006893518968>미닝봇 돈 지급 알림")
+    .setDescription(
+`<:money:1489876006893518968> **미닝봇으로부터 ${amount.toLocaleString()}원을 지급받았다밍!**
+
+<:money:1489876006893518968> **잔액:** ${targetUser.money.toLocaleString()}원`
+    );
+
+  await target.send({ embeds: [dmEmbed] });
+} catch (err) {
+  console.error("돈지급 DM 전송 실패:", err);
+}
+
+return interaction.reply({
+  content: `${target.username}님에게 ${amount.toLocaleString()}원을 지급했습니다.`,
+  ephemeral: true
+});
 }
 
 /* ---------------- 돈초기화 ---------------- */
@@ -8186,12 +8257,27 @@ if (commandName === "아이템지급") {
 
   targetUser.inventory[itemKey] += amount;
 
-  saveUsers();
+saveUsers();
 
-  return interaction.reply({
-    content: `${target.username}님에게 ${itemMap[itemKey]} ${amount.toLocaleString()}개를 지급했습니다.`,
-    ephemeral: true
+try {
+  await target.send({
+    embeds: [
+      new EmbedBuilder()
+        .setColor("#3B82F6")
+        .setTitle("🎁아이템 지급 알림")
+        .setDescription(
+`${itemMap[itemKey]} ${amount.toLocaleString()}개를 지급받았다밍!
+
+현재 보유 개수: ${targetUser.inventory[itemKey].toLocaleString()}개`
+        )
+    ]
   });
+} catch (err) {}
+
+return interaction.reply({
+  content: `${target.username}님에게 ${itemMap[itemKey]} ${amount.toLocaleString()}개를 지급했습니다.`,
+  ephemeral: true
+});
 }
 
 /* ---------------- 경험치지급 ---------------- */

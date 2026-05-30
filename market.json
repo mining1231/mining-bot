@@ -1,16 +1,16 @@
 {
   "market": {
-    "peach": 1106,
-    "strawberry": 30549,
-    "shineMuscat": 2388980,
-    "apple": 33596024,
-    "wildGinseng": 147274989
+    "peach": 551,
+    "strawberry": 32551,
+    "shineMuscat": 1531797,
+    "apple": 24377525,
+    "wildGinseng": 143406393
   },
-  "lastUpdate": 1780159365973,
+  "lastUpdate": 1780166812479,
   "targets": {
     "peach": {
-      "targetPrice": 1110,
-      "nextChangeAt": 1780161057190
+      "targetPrice": 558,
+      "nextChangeAt": 1780187760891
     },
     "strawberry": {
       "targetPrice": 31160,
@@ -21,8 +21,8 @@
       "nextChangeAt": 1780177540650
     },
     "apple": {
-      "targetPrice": 32711944,
-      "nextChangeAt": 1780160433552
+      "targetPrice": 23962971,
+      "nextChangeAt": 1780186098976
     },
     "wildGinseng": {
       "targetPrice": 145791142,
