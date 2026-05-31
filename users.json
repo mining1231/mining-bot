@@ -1,6 +1,6 @@
 {
   "366080882697568257": {
-    "money": 0,
+    "money": 5000000,
     "level": 40,
     "durability": 52,
     "engraveLevel": 4,
@@ -19,7 +19,7 @@
     "lastFarmResetDate": "2026. 5. 20.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 31.",
-    "lastLootAt": 1780154158109,
+    "lastLootAt": 1780212879072,
     "lastLottoAt": 1778591627074,
     "bankruptcyCooldown": 1780156258954,
     "attendanceDays": 24,
@@ -63,7 +63,7 @@
     }
   },
   "1145744327000207382": {
-    "money": 14613552,
+    "money": -53452552,
     "level": 29,
     "durability": 77,
     "engraveLevel": 0,
@@ -74,21 +74,21 @@
       "optionChoice": null
     },
     "farmLevel": 3,
-    "farmExp": 1227,
-    "farmCount": 2,
-    "lastFarmAt": 1780162856235,
+    "farmExp": 1253,
+    "farmCount": 5,
+    "lastFarmAt": 1780210809275,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 27.",
-    "lastLootAt": 1780162344476,
+    "lastLootAt": 1780207050135,
     "lastLottoAt": 1779797117198,
-    "bankruptcyCooldown": 1779940060251,
+    "bankruptcyCooldown": 1780214501202,
     "attendanceDays": 24,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 20174,
+      "peach": 20180,
       "strawberry": 385,
-      "shineMuscat": 5,
+      "shineMuscat": 6,
       "apple": 0,
       "wildGinseng": 0
     },
@@ -103,7 +103,7 @@
     "inventory": {
       "repairStone": 2,
       "engraveStone": 0,
-      "questionBox": 0,
+      "questionBox": 2,
       "depositDoubleCoupon": 0,
       "randomTransferCoupon": 0,
       "wildGinsengPiece": 0,
@@ -113,9 +113,9 @@
       "miningBox": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 26.",
+      "lastResetDate": "2026. 5. 31.",
       "engraveStoneBoughtToday": 0,
-      "questionBoxBoughtToday": 1
+      "questionBoxBoughtToday": 2
     },
     "transfer": {
       "lastResetDate": "2026. 5. 27.",
@@ -126,7 +126,7 @@
   "440749263308324865": {
     "money": 0,
     "level": 39,
-    "durability": 14,
+    "durability": 94,
     "engraveLevel": 3,
     "joinDate": "2026. 5. 7.",
     "pet": {
@@ -179,8 +179,8 @@
       "questionBoxBoughtToday": 2
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 29.",
-      "usedCount": 10,
+      "lastResetDate": "2026. 5. 31.",
+      "usedCount": 0,
       "maxCount": 10
     }
   },
@@ -793,7 +793,7 @@
       "questionBoxBoughtToday": 0
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
@@ -862,7 +862,7 @@
     }
   },
   "1361872651647451146": {
-    "money": 2508596,
+    "money": 6691825,
     "level": 35,
     "durability": 32,
     "engraveLevel": 0,
@@ -873,20 +873,20 @@
       "optionChoice": null
     },
     "farmLevel": 3,
-    "farmExp": 1597,
-    "farmCount": 1,
-    "lastFarmAt": 1780160162449,
+    "farmExp": 1605,
+    "farmCount": 4,
+    "lastFarmAt": 1780219977291,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780133979557,
+    "lastLootAt": 1780219983749,
     "lastLottoAt": 1779877374563,
     "bankruptcyCooldown": 1780074926618,
     "attendanceDays": 13,
     "lastAttendanceDate": "2026. 5. 30.",
     "farmCrops": {
-      "peach": 35170,
-      "strawberry": 830,
+      "peach": 35178,
+      "strawberry": 1009,
       "shineMuscat": 23,
       "apple": 2,
       "wildGinseng": 0
@@ -912,9 +912,9 @@
       "miningBox": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "engraveStoneBoughtToday": 0,
-      "questionBoxBoughtToday": 0
+      "questionBoxBoughtToday": 2
     },
     "transfer": {
       "lastResetDate": "2026. 5. 30.",
@@ -981,7 +981,7 @@
     }
   },
   "1496858827822334055": {
-    "money": 385114332,
+    "money": 379125161,
     "level": 39,
     "durability": 43,
     "engraveLevel": 5,
@@ -989,16 +989,16 @@
     "pet": {
       "key": "pig",
       "level": 1,
-      "hunger": 70,
-      "lastHungerAt": 1780132894602,
+      "hunger": 60,
+      "lastHungerAt": 1780209840364,
       "optionChoice": null
     },
     "farmLevel": 3,
-    "farmExp": 2209,
-    "farmCount": 25,
-    "lastFarmAt": 1780165225259,
+    "farmExp": 2238,
+    "farmCount": 30,
+    "lastFarmAt": 1780209810364,
     "lastFarmResetDate": "2026. 5. 31.",
-    "canGatherToday": false,
+    "canGatherToday": true,
     "lastAttackDate": "2026. 5. 30.",
     "lastLootAt": 1780156530019,
     "lastLottoAt": 1779712656968,
@@ -1006,17 +1006,17 @@
     "attendanceDays": 23,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 53366,
-      "strawberry": 824,
+      "peach": 53375,
+      "strawberry": 826,
       "shineMuscat": 24,
       "apple": 2,
       "wildGinseng": 0
     },
     "gatherLevel": 3,
-    "gatherExp": 969,
-    "gatherCount": 50,
-    "lastGatherAt": 1780134634598,
-    "lastGatherResetDate": "2026. 5. 30.",
+    "gatherExp": 987,
+    "gatherCount": 24,
+    "lastGatherAt": 1780220991716,
+    "lastGatherResetDate": "2026. 5. 31.",
     "exploreCount": 100,
     "lastExploreAt": 1780136186144,
     "lastExploreResetDate": "2026. 5. 30.",
@@ -1046,7 +1046,7 @@
   "1481511996259307530": {
     "money": 554,
     "level": 35,
-    "durability": 83,
+    "durability": 66,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 8.",
     "pet": {
@@ -1060,21 +1060,21 @@
     "lastFarmAt": 1778718106753,
     "lastFarmResetDate": "2026. 5. 14.",
     "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 30.",
+    "lastAttackDate": "2026. 5. 31.",
     "lastLootAt": 1779983455326,
     "lastLottoAt": 1778177133422,
     "bankruptcyCooldown": 1779900266668,
-    "attendanceDays": 19,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 20,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 12555,
-      "strawberry": 546,
+      "strawberry": 700,
       "shineMuscat": 7,
       "apple": 1,
       "wildGinseng": 0
     },
     "gatherLevel": 1,
-    "gatherExp": 95,
+    "gatherExp": 106,
     "gatherCount": 15,
     "lastGatherAt": 1778429448016,
     "lastGatherResetDate": "2026. 5. 11.",
@@ -1082,7 +1082,7 @@
     "lastExploreAt": 1778395477538,
     "lastExploreResetDate": "2026. 5. 10.",
     "inventory": {
-      "repairStone": 2,
+      "repairStone": 0,
       "engraveStone": 0,
       "questionBox": 0,
       "depositDoubleCoupon": 0,
@@ -1094,7 +1094,7 @@
       "miningBox": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "engraveStoneBoughtToday": 0,
       "questionBoxBoughtToday": 2
     },
@@ -1288,9 +1288,9 @@
     }
   },
   "1481515645970550876": {
-    "money": -23369688,
+    "money": 156,
     "level": 31,
-    "durability": 100,
+    "durability": 81,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 8.",
     "pet": {
@@ -1304,12 +1304,12 @@
     "lastFarmAt": 1778770978653,
     "lastFarmResetDate": "2026. 5. 15.",
     "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 30.",
+    "lastAttackDate": "2026. 5. 31.",
     "lastLootAt": 1779635874159,
     "lastLottoAt": 1778177224325,
-    "bankruptcyCooldown": 1780070987161,
-    "attendanceDays": 21,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "bankruptcyCooldown": 1780220951959,
+    "attendanceDays": 22,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 4594,
       "strawberry": 151,
@@ -1349,9 +1349,9 @@
     }
   },
   "367948871151910913": {
-    "money": 87356,
+    "money": 322749424,
     "level": 36,
-    "durability": 100,
+    "durability": 82,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 8.",
     "pet": {
@@ -1367,8 +1367,8 @@
     "lastFarmAt": 1780088911128,
     "lastFarmResetDate": "2026. 5. 30.",
     "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780128516550,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780216367359,
     "lastLottoAt": 1780125996585,
     "bankruptcyCooldown": 1780129578460,
     "attendanceDays": 16,
@@ -1591,7 +1591,7 @@
     }
   },
   "683561225044361258": {
-    "money": 848022,
+    "money": 10462733,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -1602,21 +1602,21 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 42,
+    "farmExp": 43,
     "farmCount": 1,
-    "lastFarmAt": 1780134314256,
-    "lastFarmResetDate": "2026. 5. 30.",
+    "lastFarmAt": 1780189004761,
+    "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780125173867,
+    "lastLootAt": 1780185265361,
     "lastLottoAt": 1779930949766,
     "bankruptcyCooldown": 1779957214509,
     "attendanceDays": 2,
     "lastAttendanceDate": "2026. 5. 19.",
     "farmCrops": {
-      "peach": 8,
+      "peach": 9,
       "strawberry": 1,
-      "shineMuscat": 2,
+      "shineMuscat": 0,
       "apple": 0,
       "wildGinseng": 0
     },
@@ -1641,12 +1641,12 @@
       "miningBox": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "engraveStoneBoughtToday": 0,
       "questionBoxBoughtToday": 2
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 29.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
@@ -1712,9 +1712,9 @@
     }
   },
   "1450190251434836008": {
-    "money": 69752872,
+    "money": 0,
     "level": 36,
-    "durability": 61,
+    "durability": 43,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 10.",
     "pet": {
@@ -1728,12 +1728,12 @@
     "lastFarmAt": 1780043860065,
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780076256776,
-    "lastLottoAt": 1780076254359,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780176734140,
+    "lastLottoAt": 1780176731617,
     "bankruptcyCooldown": 1779906002754,
-    "attendanceDays": 19,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 20,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 519,
       "strawberry": 357,
@@ -1773,7 +1773,7 @@
     }
   },
   "1466205181489184851": {
-    "money": -6730365,
+    "money": 675779,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -1790,11 +1790,11 @@
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780076273974,
-    "lastLottoAt": 1780076268994,
-    "bankruptcyCooldown": 1780079871706,
-    "attendanceDays": 19,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "lastLootAt": 1780176789104,
+    "lastLottoAt": 1780176786373,
+    "bankruptcyCooldown": 1780180380964,
+    "attendanceDays": 20,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 5343,
       "strawberry": 12,
@@ -1892,7 +1892,7 @@
     }
   },
   "1473295120462774447": {
-    "money": 4184832,
+    "money": 9336836,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -1909,11 +1909,11 @@
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780076347807,
-    "lastLottoAt": 1780076333623,
+    "lastLootAt": 1780176809660,
+    "lastLottoAt": 1780176807394,
     "bankruptcyCooldown": 0,
-    "attendanceDays": 19,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 20,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 10604,
       "strawberry": 544,
@@ -1953,7 +1953,7 @@
     }
   },
   "1474272285581115566": {
-    "money": -581291424,
+    "money": 2000000,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -1970,11 +1970,11 @@
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780076370134,
-    "lastLottoAt": 1780076367710,
-    "bankruptcyCooldown": 1780079963718,
-    "attendanceDays": 19,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "lastLootAt": 1780176828854,
+    "lastLottoAt": 1780176826132,
+    "bankruptcyCooldown": 1780180421525,
+    "attendanceDays": 20,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 19926,
       "strawberry": 376,
@@ -2014,7 +2014,7 @@
     }
   },
   "1476136784932110431": {
-    "money": 2494724,
+    "money": 4504724,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -2031,11 +2031,11 @@
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780076388358,
-    "lastLottoAt": 1780076386046,
+    "lastLootAt": 1780176846046,
+    "lastLottoAt": 1780176845662,
     "bankruptcyCooldown": 1778596817906,
-    "attendanceDays": 20,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 21,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 5131,
       "strawberry": 178,
@@ -2075,7 +2075,7 @@
     }
   },
   "1476912428678910123": {
-    "money": 2502259,
+    "money": 4512259,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -2092,11 +2092,11 @@
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780076441810,
-    "lastLottoAt": 1780076439844,
+    "lastLootAt": 1780176907907,
+    "lastLottoAt": 1780176905295,
     "bankruptcyCooldown": 1780046199933,
-    "attendanceDays": 20,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 21,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 5519,
       "strawberry": 160,
@@ -2136,7 +2136,7 @@
     }
   },
   "1484671654159323362": {
-    "money": 1179920,
+    "money": 3189920,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -2153,11 +2153,11 @@
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780076459135,
-    "lastLottoAt": 1780076453917,
+    "lastLootAt": 1780176921734,
+    "lastLottoAt": 1780176917785,
     "bankruptcyCooldown": 1779794355630,
-    "attendanceDays": 20,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 21,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 502,
       "strawberry": 302,
@@ -2197,7 +2197,7 @@
     }
   },
   "1414883727590297641": {
-    "money": -11476676,
+    "money": -3728338,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -2214,11 +2214,11 @@
     "lastFarmResetDate": "2026. 5. 29.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780076475087,
-    "lastLottoAt": 1780076472672,
-    "bankruptcyCooldown": 1780080081885,
-    "attendanceDays": 20,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "lastLootAt": 1780176940164,
+    "lastLottoAt": 1780176937839,
+    "bankruptcyCooldown": 1780180530453,
+    "attendanceDays": 21,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 5487,
       "strawberry": 312,
@@ -2258,32 +2258,32 @@
     }
   },
   "361912630711156736": {
-    "money": 86499436,
+    "money": 148592259,
     "level": 37,
-    "durability": 84,
+    "durability": 66,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 11.",
     "pet": {
       "key": "otter",
       "level": 1,
       "hunger": 90,
-      "lastHungerAt": 1780058835053,
+      "lastHungerAt": 1780193021029,
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 369,
-    "farmCount": 14,
-    "lastFarmAt": 1780058822262,
-    "lastFarmResetDate": "2026. 5. 29.",
+    "farmExp": 373,
+    "farmCount": 2,
+    "lastFarmAt": 1780193012421,
+    "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 29.",
-    "lastLootAt": 1780058848219,
-    "lastLottoAt": 1780058850076,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780192943783,
+    "lastLottoAt": 1780192945772,
     "bankruptcyCooldown": 1779948515078,
-    "attendanceDays": 15,
-    "lastAttendanceDate": "2026. 5. 29.",
+    "attendanceDays": 16,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 20003,
+      "peach": 24243,
       "strawberry": 300,
       "shineMuscat": 11,
       "apple": 0,
@@ -2304,18 +2304,18 @@
       "depositDoubleCoupon": 0,
       "randomTransferCoupon": 0,
       "wildGinsengPiece": 0,
-      "petFood": 7,
+      "petFood": 9,
       "mingBundle": 0,
       "bankruptcyPaper": 1,
       "miningBox": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 28.",
+      "lastResetDate": "2026. 5. 31.",
       "engraveStoneBoughtToday": 0,
       "questionBoxBoughtToday": 2
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 28.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
@@ -2381,7 +2381,7 @@
     }
   },
   "1216695598410108994": {
-    "money": 5981543,
+    "money": 619488,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -2392,19 +2392,19 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 875,
-    "farmCount": 3,
-    "lastFarmAt": 1780165994002,
+    "farmExp": 898,
+    "farmCount": 15,
+    "lastFarmAt": 1780220674373,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780165879450,
-    "lastLottoAt": 1780165876939,
-    "bankruptcyCooldown": 1780119792966,
+    "lastLootAt": 1780212137590,
+    "lastLottoAt": 1780212143583,
+    "bankruptcyCooldown": 1780212075922,
     "attendanceDays": 17,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 37,
+      "peach": 60,
       "strawberry": 208,
       "shineMuscat": 0,
       "apple": 0,
@@ -2436,7 +2436,7 @@
       "questionBoxBoughtToday": 2
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
@@ -4451,7 +4451,7 @@
     }
   },
   "600934923863457813": {
-    "money": 0,
+    "money": 10000,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -4471,8 +4471,8 @@
     "lastLootAt": 1780068728273,
     "lastLottoAt": 1778714777610,
     "bankruptcyCooldown": 1780071518524,
-    "attendanceDays": 17,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 18,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 40,
       "strawberry": 0,
@@ -4512,7 +4512,7 @@
     }
   },
   "1489235494775685223": {
-    "money": 0,
+    "money": 10000,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -4532,8 +4532,8 @@
     "lastLootAt": 1780068697633,
     "lastLottoAt": 1778714934175,
     "bankruptcyCooldown": 1779939842365,
-    "attendanceDays": 17,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 18,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 3,
       "strawberry": 0,
@@ -4573,7 +4573,7 @@
     }
   },
   "1417404964174565476": {
-    "money": 20000,
+    "money": 30000,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -4593,8 +4593,8 @@
     "lastLootAt": 1779935836702,
     "lastLottoAt": 1778715094251,
     "bankruptcyCooldown": 1779476080857,
-    "attendanceDays": 17,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 18,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 9,
       "strawberry": 0,
@@ -4634,7 +4634,7 @@
     }
   },
   "1465383871972376817": {
-    "money": 10000,
+    "money": 20000,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -4654,8 +4654,8 @@
     "lastLootAt": 1779936214254,
     "lastLottoAt": 0,
     "bankruptcyCooldown": 1779985525946,
-    "attendanceDays": 17,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 18,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 6,
       "strawberry": 0,
@@ -4695,42 +4695,42 @@
     }
   },
   "569454799708487690": {
-    "money": 2033950,
+    "money": 1062359142,
     "level": 42,
-    "durability": 100,
+    "durability": 75,
     "engraveLevel": 16,
     "joinDate": "2026. 5. 14.",
     "pet": {
       "key": "pig",
       "level": 1,
-      "hunger": 90,
-      "lastHungerAt": 1780151012098,
+      "hunger": 70,
+      "lastHungerAt": 1780194212098,
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 817,
-    "farmCount": 9,
-    "lastFarmAt": 1780164850810,
+    "farmExp": 878,
+    "farmCount": 30,
+    "lastFarmAt": 1780190475441,
     "lastFarmResetDate": "2026. 5. 31.",
-    "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780150926543,
+    "canGatherToday": true,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780210479621,
     "lastLottoAt": 1779550779353,
     "bankruptcyCooldown": 1780073900356,
     "attendanceDays": 13,
     "lastAttendanceDate": "2026. 5. 30.",
     "farmCrops": {
-      "peach": 43316,
-      "strawberry": 541,
+      "peach": 43357,
+      "strawberry": 543,
       "shineMuscat": 11,
       "apple": 1,
       "wildGinseng": 0
     },
     "gatherLevel": 2,
-    "gatherExp": 356,
-    "gatherCount": 50,
-    "lastGatherAt": 1780123634893,
-    "lastGatherResetDate": "2026. 5. 30.",
+    "gatherExp": 358,
+    "gatherCount": 45,
+    "lastGatherAt": 1780220939285,
+    "lastGatherResetDate": "2026. 5. 31.",
     "exploreCount": 0,
     "lastExploreAt": 1780150913951,
     "lastExploreResetDate": "2026. 5. 31.",
@@ -5060,7 +5060,7 @@
     }
   },
   "1429653846354952273": {
-    "money": 50499367,
+    "money": 54995119,
     "level": 28,
     "durability": 89,
     "engraveLevel": 0,
@@ -5071,19 +5071,19 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 363,
-    "farmCount": 1,
-    "lastFarmAt": 1780160981030,
+    "farmExp": 369,
+    "farmCount": 4,
+    "lastFarmAt": 1780206982872,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 29.",
-    "lastLootAt": 1780161011037,
+    "lastLootAt": 1780220875047,
     "lastLottoAt": 1780065693437,
     "bankruptcyCooldown": 0,
     "attendanceDays": 13,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 283,
+      "peach": 289,
       "strawberry": 8,
       "shineMuscat": 0,
       "apple": 0,
@@ -5121,9 +5121,9 @@
     }
   },
   "1493472263176196218": {
-    "money": 2561591,
+    "money": 4724429,
     "level": 19,
-    "durability": 93,
+    "durability": 86,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 18.",
     "pet": {
@@ -5133,16 +5133,16 @@
     },
     "farmLevel": 1,
     "farmExp": 35,
-    "farmCount": 8,
-    "lastFarmAt": 1779167594747,
-    "lastFarmResetDate": "2026. 5. 19.",
+    "farmCount": 1,
+    "lastFarmAt": 1780207132095,
+    "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 19.",
-    "lastLootAt": 1779155031778,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780207103866,
     "lastLottoAt": 0,
     "bankruptcyCooldown": 1779085255832,
-    "attendanceDays": 2,
-    "lastAttendanceDate": "2026. 5. 19.",
+    "attendanceDays": 3,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 35,
       "strawberry": 0,
@@ -5167,7 +5167,8 @@
       "wildGinsengPiece": 0,
       "petFood": 0,
       "bankruptcyPaper": 0,
-      "mingBundle": 0
+      "mingBundle": 0,
+      "miningBox": 0
     },
     "shopPurchase": {
       "lastResetDate": "",
@@ -5181,7 +5182,7 @@
     }
   },
   "646049439554732072": {
-    "money": 118768172,
+    "money": 124755621,
     "level": 29,
     "durability": 23,
     "engraveLevel": 0,
@@ -5192,19 +5193,19 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 739,
-    "farmCount": 3,
-    "lastFarmAt": 1780162618263,
+    "farmExp": 757,
+    "farmCount": 13,
+    "lastFarmAt": 1780220929049,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 29.",
-    "lastLootAt": 1780161027969,
+    "lastLootAt": 1780220925331,
     "lastLottoAt": 1780130747782,
     "bankruptcyCooldown": 0,
     "attendanceDays": 11,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 499,
+      "peach": 517,
       "strawberry": 24,
       "shineMuscat": 0,
       "apple": 0,
@@ -5242,7 +5243,7 @@
     }
   },
   "1057986072333783040": {
-    "money": -89267750,
+    "money": -39633875,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -5259,9 +5260,9 @@
     "lastFarmResetDate": "2026. 5. 27.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 28.",
-    "lastLootAt": 1780147093990,
+    "lastLootAt": 1780175700076,
     "lastLottoAt": 1779942458078,
-    "bankruptcyCooldown": 1780150687661,
+    "bankruptcyCooldown": 1780179293998,
     "attendanceDays": 10,
     "lastAttendanceDate": "2026. 5. 29.",
     "farmCrops": {
@@ -5303,7 +5304,7 @@
     }
   },
   "795672551908835339": {
-    "money": 6934149,
+    "money": -1550622,
     "level": 30,
     "durability": 67,
     "engraveLevel": 0,
@@ -5314,19 +5315,19 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 162,
-    "farmCount": 10,
-    "lastFarmAt": 1780152114028,
-    "lastFarmResetDate": "2026. 5. 30.",
+    "farmExp": 169,
+    "farmCount": 4,
+    "lastFarmAt": 1780220575453,
+    "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 31.",
-    "lastLootAt": 1780162753022,
-    "lastLottoAt": 1779985807614,
-    "bankruptcyCooldown": 1780163243960,
+    "lastLootAt": 1780217493055,
+    "lastLottoAt": 1780217505543,
+    "bankruptcyCooldown": 1780222570227,
     "attendanceDays": 12,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 10036,
+      "peach": 10043,
       "strawberry": 202,
       "shineMuscat": 10,
       "apple": 0,
@@ -5364,7 +5365,7 @@
     }
   },
   "1286930868790759527": {
-    "money": -11518244,
+    "money": -1724561,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -5381,11 +5382,11 @@
     "lastFarmResetDate": "2026. 5. 23.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1779918879737,
+    "lastLootAt": 1780194336947,
     "lastLottoAt": 1779753610257,
-    "bankruptcyCooldown": 1779922505478,
-    "attendanceDays": 9,
-    "lastAttendanceDate": "2026. 5. 28.",
+    "bankruptcyCooldown": 1780203221886,
+    "attendanceDays": 10,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 91,
       "strawberry": 10,
@@ -5486,9 +5487,9 @@
     }
   },
   "439072499532300288": {
-    "money": 71083177,
-    "level": 20,
-    "durability": 19,
+    "money": 2609070,
+    "level": 29,
+    "durability": 100,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 19.",
     "pet": {
@@ -5503,26 +5504,26 @@
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": true,
     "lastAttackDate": "2026. 5. 31.",
-    "lastLootAt": 1780149297243,
-    "lastLottoAt": 1780154430538,
+    "lastLootAt": 1780210246757,
+    "lastLottoAt": 1780203042798,
     "bankruptcyCooldown": 1779983636096,
     "attendanceDays": 6,
     "lastAttendanceDate": "2026. 5. 27.",
     "farmCrops": {
       "peach": 20012,
       "strawberry": 555,
-      "shineMuscat": 12,
+      "shineMuscat": 13,
       "apple": 1,
       "wildGinseng": 0
     },
     "gatherLevel": 2,
-    "gatherExp": 364,
-    "gatherCount": 4,
-    "lastGatherAt": 1780163279783,
+    "gatherExp": 389,
+    "gatherCount": 50,
+    "lastGatherAt": 1780190303305,
     "lastGatherResetDate": "2026. 5. 31.",
-    "exploreCount": 7,
-    "lastExploreAt": 1780153088845,
-    "lastExploreResetDate": "2026. 5. 30.",
+    "exploreCount": 100,
+    "lastExploreAt": 1780191011873,
+    "lastExploreResetDate": "2026. 5. 31.",
     "inventory": {
       "repairStone": 3,
       "engraveStone": 0,
@@ -5610,9 +5611,9 @@
     }
   },
   "1506290855948845223": {
-    "money": 14547394,
-    "level": 28,
-    "durability": 100,
+    "money": 9434315,
+    "level": 29,
+    "durability": 88,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 19.",
     "pet": {
@@ -5621,19 +5622,19 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 251,
-    "farmCount": 1,
-    "lastFarmAt": 1780156179943,
+    "farmExp": 257,
+    "farmCount": 4,
+    "lastFarmAt": 1780198391441,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
-    "lastAttackDate": "2026. 5. 29.",
-    "lastLootAt": 1780154251674,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780191979770,
     "lastLottoAt": 1780156196611,
     "bankruptcyCooldown": 0,
     "attendanceDays": 10,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 171,
+      "peach": 177,
       "strawberry": 6,
       "shineMuscat": 1,
       "apple": 0,
@@ -6092,7 +6093,7 @@
     }
   },
   "1506295545063276698": {
-    "money": 8052100,
+    "money": 19154086,
     "level": 19,
     "durability": 100,
     "engraveLevel": 0,
@@ -6103,19 +6104,19 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 95,
-    "farmCount": 2,
-    "lastFarmAt": 1780160021190,
+    "farmExp": 97,
+    "farmCount": 4,
+    "lastFarmAt": 1780197402233,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780150093623,
-    "lastLottoAt": 1780160026628,
+    "lastLootAt": 1780208816121,
+    "lastLottoAt": 1780208822726,
     "bankruptcyCooldown": 1780159485453,
     "attendanceDays": 11,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 85,
+      "peach": 87,
       "strawberry": 1,
       "shineMuscat": 0,
       "apple": 0,
@@ -6274,7 +6275,7 @@
     }
   },
   "1332058339215015956": {
-    "money": 79782238,
+    "money": 84417209,
     "level": 19,
     "durability": 74,
     "engraveLevel": 0,
@@ -6304,9 +6305,9 @@
       "wildGinseng": 0
     },
     "gatherLevel": 2,
-    "gatherExp": 173,
-    "gatherCount": 23,
-    "lastGatherAt": 1780166686676,
+    "gatherExp": 187,
+    "gatherCount": 35,
+    "lastGatherAt": 1780175581133,
     "lastGatherResetDate": "2026. 5. 31.",
     "exploreCount": 100,
     "lastExploreAt": 1780016998799,
@@ -6516,7 +6517,7 @@
     }
   },
   "1361361929716891728": {
-    "money": -12960713,
+    "money": -16967431,
     "level": 26,
     "durability": 63,
     "engraveLevel": 0,
@@ -6527,20 +6528,20 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 190,
-    "farmCount": 5,
-    "lastFarmAt": 1780161062690,
+    "farmExp": 221,
+    "farmCount": 16,
+    "lastFarmAt": 1780219931743,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 31.",
-    "lastLootAt": 1780156246045,
-    "lastLottoAt": 1780156251771,
-    "bankruptcyCooldown": 1780162784116,
+    "lastLootAt": 1780214833088,
+    "lastLottoAt": 1780186634386,
+    "bankruptcyCooldown": 1780223513150,
     "attendanceDays": 9,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 33390,
-      "strawberry": 302,
+      "peach": 33401,
+      "strawberry": 304,
       "shineMuscat": 13,
       "apple": 0,
       "wildGinseng": 0
@@ -6571,13 +6572,13 @@
       "questionBoxBoughtToday": 2
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
   },
   "1458371315806502913": {
-    "money": -335853865,
+    "money": -20617106,
     "level": 35,
     "durability": 83,
     "engraveLevel": 0,
@@ -6588,19 +6589,19 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 38,
-    "farmCount": 2,
-    "lastFarmAt": 1780160782522,
+    "farmExp": 46,
+    "farmCount": 10,
+    "lastFarmAt": 1780219845938,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780156291223,
-    "lastLottoAt": 1780156295638,
-    "bankruptcyCooldown": 1780164336255,
+    "lastLootAt": 1780215006148,
+    "lastLottoAt": 1780219853638,
+    "bankruptcyCooldown": 1780223437629,
     "attendanceDays": 7,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 24793,
+      "peach": 24801,
       "strawberry": 301,
       "shineMuscat": 13,
       "apple": 1,
@@ -6632,7 +6633,7 @@
       "questionBoxBoughtToday": 2
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
@@ -6943,7 +6944,7 @@
     }
   },
   "781407442201346079": {
-    "money": 625039,
+    "money": 25000,
     "level": 9,
     "durability": 96,
     "engraveLevel": 0,
@@ -6960,7 +6961,7 @@
     "lastFarmResetDate": "2026. 5. 30.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780165921199,
+    "lastLootAt": 1780218401866,
     "lastLottoAt": 1780153100069,
     "bankruptcyCooldown": 1780112924273,
     "attendanceDays": 3,
@@ -6993,9 +6994,9 @@
       "miningBox": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "engraveStoneBoughtToday": 0,
-      "questionBoxBoughtToday": 2
+      "questionBoxBoughtToday": 1
     },
     "transfer": {
       "lastResetDate": "2026. 5. 30.",
@@ -7076,19 +7077,19 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 27,
-    "farmCount": 3,
-    "lastFarmAt": 1780135478539,
-    "lastFarmResetDate": "2026. 5. 30.",
+    "farmExp": 32,
+    "farmCount": 1,
+    "lastFarmAt": 1780182643934,
+    "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780153090171,
-    "lastLottoAt": 1780153095011,
+    "lastLootAt": 1780198502816,
+    "lastLottoAt": 1780198506948,
     "bankruptcyCooldown": 1780156685085,
     "attendanceDays": 0,
     "lastAttendanceDate": "",
     "farmCrops": {
-      "peach": 17,
+      "peach": 22,
       "strawberry": 1,
       "shineMuscat": 0,
       "apple": 0,
@@ -7248,7 +7249,7 @@
     }
   },
   "1397936440339468383": {
-    "money": 38652761,
+    "money": 39152761,
     "level": 10,
     "durability": 100,
     "engraveLevel": 0,
@@ -7265,7 +7266,7 @@
     "lastFarmResetDate": "2026. 5. 30.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 27.",
-    "lastLootAt": 1780154456277,
+    "lastLootAt": 1780208999824,
     "lastLottoAt": 1780034356305,
     "bankruptcyCooldown": 0,
     "attendanceDays": 5,
@@ -7370,9 +7371,9 @@
     }
   },
   "1460490549688668345": {
-    "money": -1354212,
+    "money": -286878,
     "level": 29,
-    "durability": 86,
+    "durability": 100,
     "engraveLevel": 4,
     "joinDate": "2026. 5. 27.",
     "pet": {
@@ -7383,19 +7384,19 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 204,
-    "farmCount": 3,
-    "lastFarmAt": 1780166759949,
+    "farmExp": 207,
+    "farmCount": 4,
+    "lastFarmAt": 1780220481246,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "2026. 5. 31.",
-    "lastLootAt": 1780158005707,
-    "lastLottoAt": 1780158060041,
-    "bankruptcyCooldown": 1780161515670,
+    "lastLootAt": 1780218045407,
+    "lastLottoAt": 1780220487191,
+    "bankruptcyCooldown": 1780224124460,
     "attendanceDays": 5,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 49,
+      "peach": 52,
       "strawberry": 0,
       "shineMuscat": 0,
       "apple": 0,
@@ -7422,7 +7423,7 @@
       "miningBox": 0
     },
     "shopPurchase": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "engraveStoneBoughtToday": 0,
       "questionBoxBoughtToday": 2
     },
@@ -7555,7 +7556,7 @@
     }
   },
   "945867003665731585": {
-    "money": 5771989,
+    "money": 15762101,
     "level": 8,
     "durability": 97,
     "engraveLevel": 0,
@@ -7566,21 +7567,21 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 73,
-    "farmCount": 30,
-    "lastFarmAt": 1780085416648,
-    "lastFarmResetDate": "2026. 5. 30.",
-    "canGatherToday": true,
+    "farmExp": 97,
+    "farmCount": 24,
+    "lastFarmAt": 1780218336455,
+    "lastFarmResetDate": "2026. 5. 31.",
+    "canGatherToday": false,
     "lastAttackDate": "2026. 5. 29.",
-    "lastLootAt": 1780150339995,
-    "lastLottoAt": 1780145455698,
+    "lastLootAt": 1780214997037,
+    "lastLottoAt": 1780214986336,
     "bankruptcyCooldown": 0,
-    "attendanceDays": 2,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 3,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 294,
-      "strawberry": 80,
-      "shineMuscat": 2,
+      "peach": 318,
+      "strawberry": 100,
+      "shineMuscat": 1,
       "apple": 0,
       "wildGinseng": 0
     },
@@ -7610,13 +7611,13 @@
       "questionBoxBoughtToday": 0
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
   },
   "1305131851844943953": {
-    "money": 25438014,
+    "money": 4188766,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -7633,13 +7634,13 @@
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": true,
     "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780164293927,
-    "lastLottoAt": 1780159928058,
-    "bankruptcyCooldown": 1780158129930,
+    "lastLootAt": 1780219163419,
+    "lastLottoAt": 1780207283540,
+    "bankruptcyCooldown": 1780222757000,
     "attendanceDays": 4,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 40,
+      "peach": 20000,
       "strawberry": 1,
       "shineMuscat": 0,
       "apple": 0,
@@ -7671,13 +7672,13 @@
       "questionBoxBoughtToday": 0
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
   },
   "699607144026079283": {
-    "money": -113553,
+    "money": 1357640316,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -7688,29 +7689,29 @@
       "optionChoice": null
     },
     "farmLevel": 2,
-    "farmExp": 163,
-    "farmCount": 3,
-    "lastFarmAt": 1780156781144,
+    "farmExp": 207,
+    "farmCount": 30,
+    "lastFarmAt": 1780186918963,
     "lastFarmResetDate": "2026. 5. 31.",
-    "canGatherToday": false,
+    "canGatherToday": true,
     "lastAttackDate": "",
-    "lastLootAt": 1780145030410,
-    "lastLottoAt": 1780153661606,
-    "bankruptcyCooldown": 1780160367386,
+    "lastLootAt": 1780219111091,
+    "lastLottoAt": 1780219115440,
+    "bankruptcyCooldown": 1780186976814,
     "attendanceDays": 4,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 593,
+      "peach": 637,
       "strawberry": 2,
       "shineMuscat": 0,
       "apple": 0,
       "wildGinseng": 0
     },
     "gatherLevel": 1,
-    "gatherExp": 26,
-    "gatherCount": 26,
-    "lastGatherAt": 1780153181657,
-    "lastGatherResetDate": "2026. 5. 30.",
+    "gatherExp": 49,
+    "gatherCount": 37,
+    "lastGatherAt": 1780220454828,
+    "lastGatherResetDate": "2026. 5. 31.",
     "exploreCount": 100,
     "lastExploreAt": 1780025429024,
     "lastExploreResetDate": "2026. 5. 29.",
@@ -7732,7 +7733,7 @@
       "questionBoxBoughtToday": 0
     },
     "transfer": {
-      "lastResetDate": "2026. 5. 30.",
+      "lastResetDate": "2026. 5. 31.",
       "usedCount": 0,
       "maxCount": 10
     }
@@ -8104,9 +8105,9 @@
     }
   },
   "615138839790354434": {
-    "money": 9285445,
-    "level": 9,
-    "durability": 96,
+    "money": 8511550,
+    "level": 19,
+    "durability": 93,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 29.",
     "pet": {
@@ -8115,20 +8116,20 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 72,
-    "farmCount": 30,
-    "lastFarmAt": 1780117312080,
-    "lastFarmResetDate": "2026. 5. 30.",
-    "canGatherToday": true,
-    "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780133840755,
-    "lastLottoAt": 1780138736486,
+    "farmExp": 86,
+    "farmCount": 13,
+    "lastFarmAt": 1780220090691,
+    "lastFarmResetDate": "2026. 5. 31.",
+    "canGatherToday": false,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780220033003,
+    "lastLottoAt": 1780205582024,
     "bankruptcyCooldown": 1780120504886,
-    "attendanceDays": 1,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "attendanceDays": 2,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 50,
-      "strawberry": 0,
+      "peach": 4,
+      "strawberry": 290,
       "shineMuscat": 0,
       "apple": 0,
       "wildGinseng": 0
@@ -8185,67 +8186,6 @@
     "lastLootAt": 0,
     "lastLottoAt": 0,
     "bankruptcyCooldown": 0,
-    "attendanceDays": 0,
-    "lastAttendanceDate": "",
-    "farmCrops": {
-      "peach": 0,
-      "strawberry": 0,
-      "shineMuscat": 0,
-      "apple": 0,
-      "wildGinseng": 0
-    },
-    "gatherLevel": 1,
-    "gatherExp": 0,
-    "gatherCount": 0,
-    "lastGatherAt": 0,
-    "lastGatherResetDate": "",
-    "exploreCount": 0,
-    "lastExploreAt": 0,
-    "lastExploreResetDate": "",
-    "inventory": {
-      "repairStone": 0,
-      "engraveStone": 0,
-      "questionBox": 0,
-      "depositDoubleCoupon": 0,
-      "randomTransferCoupon": 0,
-      "wildGinsengPiece": 0,
-      "petFood": 0,
-      "bankruptcyPaper": 0,
-      "mingBundle": 0,
-      "miningBox": 0
-    },
-    "shopPurchase": {
-      "lastResetDate": "",
-      "engraveStoneBoughtToday": 0,
-      "questionBoxBoughtToday": 0
-    },
-    "transfer": {
-      "lastResetDate": "",
-      "usedCount": 0,
-      "maxCount": 10
-    }
-  },
-  "1358717244796043357": {
-    "money": -705709,
-    "level": 1,
-    "durability": 100,
-    "engraveLevel": 0,
-    "joinDate": "2026. 5. 30.",
-    "pet": {
-      "key": null,
-      "level": 1,
-      "optionChoice": null
-    },
-    "farmLevel": 1,
-    "farmExp": 0,
-    "farmCount": 0,
-    "lastFarmAt": 0,
-    "lastFarmResetDate": "",
-    "canGatherToday": false,
-    "lastAttackDate": "",
-    "lastLootAt": 1780141732799,
-    "lastLottoAt": 1780146278202,
-    "bankruptcyCooldown": 1780155029678,
     "attendanceDays": 0,
     "lastAttendanceDate": "",
     "farmCrops": {
@@ -8470,7 +8410,7 @@
     }
   },
   "391384292091232266": {
-    "money": -24786912,
+    "money": -1027139072,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -8481,19 +8421,19 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 56,
-    "farmCount": 30,
-    "lastFarmAt": 1780121717258,
-    "lastFarmResetDate": "2026. 5. 30.",
-    "canGatherToday": true,
+    "farmExp": 65,
+    "farmCount": 6,
+    "lastFarmAt": 1780193637887,
+    "lastFarmResetDate": "2026. 5. 31.",
+    "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780154926717,
-    "lastLottoAt": 1780131498434,
-    "bankruptcyCooldown": 1780158505655,
-    "attendanceDays": 1,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "lastLootAt": 1780200413399,
+    "lastLottoAt": 1780190154836,
+    "bankruptcyCooldown": 1780220269999,
+    "attendanceDays": 2,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
-      "peach": 36,
+      "peach": 45,
       "strawberry": 0,
       "shineMuscat": 0,
       "apple": 0,
@@ -8531,7 +8471,7 @@
     }
   },
   "1112315178101514240": {
-    "money": 1086564,
+    "money": 16428487,
     "level": 10,
     "durability": 85,
     "engraveLevel": 0,
@@ -8548,8 +8488,8 @@
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": true,
     "lastAttackDate": "2026. 5. 31.",
-    "lastLootAt": 1780153878614,
-    "lastLottoAt": 1780158019657,
+    "lastLootAt": 1780212406484,
+    "lastLottoAt": 1780209255708,
     "bankruptcyCooldown": 1780146260889,
     "attendanceDays": 2,
     "lastAttendanceDate": "2026. 5. 31.",
@@ -8566,10 +8506,10 @@
     "lastGatherAt": 1780159985691,
     "lastGatherResetDate": "2026. 5. 31.",
     "exploreCount": 100,
-    "lastExploreAt": 1780129700270,
-    "lastExploreResetDate": "2026. 5. 30.",
+    "lastExploreAt": 1780186947287,
+    "lastExploreResetDate": "2026. 5. 31.",
     "inventory": {
-      "repairStone": 0,
+      "repairStone": 1,
       "engraveStone": 0,
       "questionBox": 0,
       "depositDoubleCoupon": 0,
@@ -8653,7 +8593,7 @@
     }
   },
   "823616751953772574": {
-    "money": -456051,
+    "money": -14175792,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -8670,9 +8610,9 @@
     "lastFarmResetDate": "2026. 5. 30.",
     "canGatherToday": true,
     "lastAttackDate": "",
-    "lastLootAt": 1780132398344,
-    "lastLottoAt": 1780138930948,
-    "bankruptcyCooldown": 1780166194356,
+    "lastLootAt": 1780190517322,
+    "lastLottoAt": 1780190525421,
+    "bankruptcyCooldown": 1780194111493,
     "attendanceDays": 1,
     "lastAttendanceDate": "2026. 5. 30.",
     "farmCrops": {
@@ -8714,7 +8654,7 @@
     }
   },
   "967391224430469172": {
-    "money": 2638274,
+    "money": -6304992,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -8731,11 +8671,11 @@
     "lastFarmResetDate": "2026. 5. 30.",
     "canGatherToday": true,
     "lastAttackDate": "",
-    "lastLootAt": 1780158052524,
-    "lastLottoAt": 1780160613054,
-    "bankruptcyCooldown": 1780140953037,
-    "attendanceDays": 1,
-    "lastAttendanceDate": "2026. 5. 30.",
+    "lastLootAt": 1780209855073,
+    "lastLottoAt": 1780218546488,
+    "bankruptcyCooldown": 1780222129383,
+    "attendanceDays": 2,
+    "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 0,
       "strawberry": 83,
@@ -8775,7 +8715,7 @@
     }
   },
   "779053623534682173": {
-    "money": -810969,
+    "money": -7662848,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -8786,20 +8726,20 @@
       "optionChoice": null
     },
     "farmLevel": 1,
-    "farmExp": 64,
-    "farmCount": 6,
-    "lastFarmAt": 1780161404699,
+    "farmExp": 94,
+    "farmCount": 23,
+    "lastFarmAt": 1780220411273,
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": false,
     "lastAttackDate": "",
-    "lastLootAt": 1780155321516,
-    "lastLottoAt": 1780155340622,
-    "bankruptcyCooldown": 1780164855958,
+    "lastLootAt": 1780220424180,
+    "lastLottoAt": 1780220435660,
+    "bankruptcyCooldown": 1780224017195,
     "attendanceDays": 0,
     "lastAttendanceDate": "",
     "farmCrops": {
-      "peach": 24,
-      "strawberry": 0,
+      "peach": 44,
+      "strawberry": 1,
       "shineMuscat": 0,
       "apple": 0,
       "wildGinseng": 0
@@ -8897,9 +8837,9 @@
     }
   },
   "480021045600845836": {
-    "money": 3840622,
+    "money": 511483808,
     "level": 19,
-    "durability": 94,
+    "durability": 86,
     "engraveLevel": 0,
     "joinDate": "2026. 5. 30.",
     "pet": {
@@ -8913,9 +8853,9 @@
     "lastFarmAt": 1780127097189,
     "lastFarmResetDate": "2026. 5. 30.",
     "canGatherToday": true,
-    "lastAttackDate": "2026. 5. 30.",
-    "lastLootAt": 1780155170617,
-    "lastLottoAt": 1780160564547,
+    "lastAttackDate": "2026. 5. 31.",
+    "lastLootAt": 1780216701189,
+    "lastLottoAt": 1780186661925,
     "bankruptcyCooldown": 1780147473900,
     "attendanceDays": 0,
     "lastAttendanceDate": "",
@@ -9080,7 +9020,7 @@
     }
   },
   "1509435365759385650": {
-    "money": 3967688,
+    "money": -601959,
     "level": 1,
     "durability": 100,
     "engraveLevel": 0,
@@ -9097,14 +9037,14 @@
     "lastFarmResetDate": "2026. 5. 31.",
     "canGatherToday": true,
     "lastAttackDate": "",
-    "lastLootAt": 1780165142616,
-    "lastLottoAt": 1780163054721,
-    "bankruptcyCooldown": 1780148187355,
+    "lastLootAt": 1780210221775,
+    "lastLottoAt": 1780209238046,
+    "bankruptcyCooldown": 1780212806296,
     "attendanceDays": 2,
     "lastAttendanceDate": "2026. 5. 31.",
     "farmCrops": {
       "peach": 0,
-      "strawberry": 1,
+      "strawberry": 83,
       "shineMuscat": 0,
       "apple": 0,
       "wildGinseng": 0
@@ -9114,11 +9054,72 @@
     "gatherCount": 50,
     "lastGatherAt": 1780161189172,
     "lastGatherResetDate": "2026. 5. 31.",
-    "exploreCount": 7,
-    "lastExploreAt": 1780163410878,
+    "exploreCount": 100,
+    "lastExploreAt": 1780183976725,
     "lastExploreResetDate": "2026. 5. 31.",
     "inventory": {
       "repairStone": 1,
+      "engraveStone": 0,
+      "questionBox": 0,
+      "depositDoubleCoupon": 0,
+      "randomTransferCoupon": 0,
+      "wildGinsengPiece": 0,
+      "petFood": 0,
+      "bankruptcyPaper": 0,
+      "mingBundle": 0,
+      "miningBox": 0
+    },
+    "shopPurchase": {
+      "lastResetDate": "",
+      "engraveStoneBoughtToday": 0,
+      "questionBoxBoughtToday": 0
+    },
+    "transfer": {
+      "lastResetDate": "",
+      "usedCount": 0,
+      "maxCount": 10
+    }
+  },
+  "1358717244796043357": {
+    "money": -8361000,
+    "level": 1,
+    "durability": 100,
+    "engraveLevel": 0,
+    "joinDate": "2026. 5. 31.",
+    "pet": {
+      "key": null,
+      "level": 1,
+      "optionChoice": null
+    },
+    "farmLevel": 1,
+    "farmExp": 0,
+    "farmCount": 0,
+    "lastFarmAt": 0,
+    "lastFarmResetDate": "",
+    "canGatherToday": false,
+    "lastAttackDate": "",
+    "lastLootAt": 1780219354071,
+    "lastLottoAt": 0,
+    "bankruptcyCooldown": 1780223011776,
+    "attendanceDays": 0,
+    "lastAttendanceDate": "",
+    "farmCrops": {
+      "peach": 0,
+      "strawberry": 0,
+      "shineMuscat": 0,
+      "apple": 0,
+      "wildGinseng": 0
+    },
+    "gatherLevel": 1,
+    "gatherExp": 0,
+    "gatherCount": 0,
+    "lastGatherAt": 0,
+    "lastGatherResetDate": "",
+    "exploreCount": 0,
+    "lastExploreAt": 0,
+    "lastExploreResetDate": "",
+    "inventory": {
+      "repairStone": 0,
       "engraveStone": 0,
       "questionBox": 0,
       "depositDoubleCoupon": 0,
