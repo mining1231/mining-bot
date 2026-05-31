@@ -346,6 +346,16 @@ const ADMIN_ID = "1496408494507692095";
 
 const JOIN_LOG_CHANNEL_ID = "1502603873733447732";
 const LEAVE_LOG_CHANNEL_ID = "1502603916020551732";
+const TAX_LOG_CHANNEL_ID = "1510652411033944186";
+
+const TAX_CHECK_INTERVAL = 1000 * 30;
+const TAX_MAINTENANCE_START_HOUR = 23;
+const TAX_MAINTENANCE_START_MINUTE = 50;
+const TAX_MAINTENANCE_END_HOUR = 0;
+const TAX_MAINTENANCE_END_MINUTE = 10;
+
+let lastTaxRunDate = "";
+
 const YUT_CHANNEL_IDS = [
   "1492836361181335674",
   "1492843277114671334",
@@ -399,6 +409,7 @@ const defaultUser = {
 
   attendanceDays: 0,
   lastAttendanceDate: "",
+  lastHeartExpRewardAt: 0,
 
   farmCrops: {
     peach: 0,
@@ -1547,6 +1558,11 @@ function ensureUser(id) {
   if (user.bankruptcyCooldown === undefined) user.bankruptcyCooldown = 0;
   if (user.attendanceDays === undefined) user.attendanceDays = 0;
   if (user.lastAttendanceDate === undefined) user.lastAttendanceDate = "";
+
+  if (user.lastHeartExpRewardAt === undefined) {
+  user.lastHeartExpRewardAt = 0;
+  }
+
   if (user.money === undefined) user.money = 50000;
   if (user.level === undefined) user.level = 1;
   if (user.durability === undefined) user.durability = 100;
@@ -1783,6 +1799,160 @@ function getBagItemMeta() {
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// 여기부터 추가
+async function checkKoreanBotsVote(userId) {
+  try {
+    const response = await fetch(
+      `https://koreanbots.dev/api/v2/bots/1487641534462689391/vote?userID=${userId}`,
+      {
+        headers: {
+          Authorization: process.env.KOREANBOTS_TOKEN,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    return data?.data?.voted === true;
+  } catch (err) {
+    console.error("한디리 투표 확인 실패:", err);
+    return false;
+  }
+}
+
+async function getTaxUserName(userId) {
+  try {
+    const discordUser = await client.users.fetch(userId);
+    return discordUser.username;
+  } catch {
+    return userId;
+  }
+}
+
+async function applyMiningTax() {
+  const over10B = [];
+  const over100M = [];
+
+  for (const userId in users) {
+    const user = users[userId];
+
+    if (!user || typeof user.money !== "number") continue;
+
+    if (user.money >= 1000000000) {
+      const beforeMoney = user.money;
+      const tax = Math.floor(beforeMoney * 0.10);
+
+      user.money -= tax;
+
+      over10B.push({
+        name: await getTaxUserName(userId),
+        beforeMoney,
+        tax,
+        afterMoney: user.money
+      });
+    }
+
+    else if (user.money >= 100000000) {
+      const beforeMoney = user.money;
+      const tax = Math.floor(beforeMoney * 0.05);
+
+      user.money -= tax;
+
+      over100M.push({
+        name: await getTaxUserName(userId),
+        beforeMoney,
+        tax,
+        afterMoney: user.money
+      });
+    }
+  }
+
+  saveUsers();
+
+  over10B.sort((a, b) => b.afterMoney - a.afterMoney);
+  over100M.sort((a, b) => b.afterMoney - a.afterMoney);
+
+  return {
+    over10B,
+    over100M
+  };
+}
+
+function formatTaxUserList(list) {
+  const showList = list.length >= 10 ? list.slice(0, 4) : list;
+
+  let text = showList
+    .map((item, index) => {
+      return `${index + 1}. ${item.name}
+잔액: ${item.afterMoney.toLocaleString()}원 (-${item.tax.toLocaleString()}원)`;
+    })
+    .join("\n\n");
+
+  if (list.length >= 10) {
+    text += `
+
+생각보다 부자가 많다밍!
+명단이 너무 많아 일부만 공개하겠다밍!`;
+  }
+
+  return text || "대상자가 없다밍!";
+}
+
+function buildMiningTaxEmbed(taxResult) {
+  return new EmbedBuilder()
+    .setColor("#F59E0B")
+    .setTitle("🐑 미닝세 징수")
+    .setDescription(
+`자산이 많은 유저들에게 미닝세가 부과되었다밍!
+
+────────────────────
+
+💰 10억 이상 보유 유저 (10%)
+
+${formatTaxUserList(taxResult.over10B)}
+
+────────────────────
+
+💸 1억 이상 보유 유저 (5%)
+
+${formatTaxUserList(taxResult.over100M)}
+
+────────────────────
+
+미닝세 징수가 완료되었다밍!`
+    );
+}
+
+async function runMiningTaxIfNeeded() {
+  const now = new Date();
+
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+
+  if (hour !== 0 || minute !== 0) return;
+
+  const today = now.toLocaleDateString("ko-KR");
+
+  if (lastTaxRunDate === today) return;
+
+  lastTaxRunDate = today;
+
+  const taxResult = await applyMiningTax();
+  const embed = buildMiningTaxEmbed(taxResult);
+
+  const channel = client.channels.cache.get(TAX_LOG_CHANNEL_ID);
+
+  if (!channel) {
+    console.error("미닝세 공지 채널을 찾을 수 없습니다.");
+    return;
+  }
+
+  await channel.send({
+    embeds: [embed]
+  });
 }
 
 const lottoResults = [
@@ -2912,6 +3082,8 @@ ${starText}
 client.once("ready", async () => {
   console.log(`${client.user.tag} 로그인 완료`);
 
+  setInterval(runMiningTaxIfNeeded, TAX_CHECK_INTERVAL);
+
   await buildMoneyRankingCache();
   await buildWeaponRankingCache();
   await buildEngraveRankingCache();
@@ -3099,10 +3271,92 @@ ${crop.emoji} 보유 개수: ${user.farmCrops[coupon.key].toLocaleString()}개`;
 /* ---------------- 버튼 ---------------- */
 if (interaction.isButton()) {
 
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+
+  const isMaintenance =
+    (hour === 23 && minute >= 50) ||
+    (hour === 0 && minute < 10);
+
+  if (isMaintenance) {
+    return interaction.reply({
+      content:
+        "**현재 미닝세 정산 및 점검이 진행 중이다밍! 00:10분 이후에 다시 이용해달라밍!**",
+      ephemeral: true
+    });
+  }
+
   const ownerId = interaction.message.interaction?.user?.id;
   const yutButtonIds = ["yut_accept", "yut_decline", "yut_roll", "yut_piece_0", "yut_piece_1"];
 
   const id = interaction.customId;
+
+  if (interaction.customId === "heart_exp_reward") {
+  const user = ensureUser(interaction.user.id);
+  const now = Date.now();
+
+  const cooldown = 12 * 60 * 60 * 1000;
+
+  if (user.lastHeartExpRewardAt && now - user.lastHeartExpRewardAt < cooldown) {
+    const remainingMs = cooldown - (now - user.lastHeartExpRewardAt);
+    const hours = Math.floor(remainingMs / (60 * 60 * 1000));
+    const minutes = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
+
+    return interaction.reply({
+      content: `**⏳경험치는 ${hours}시간 ${minutes}분 ${seconds}초 후 다시 받을 수 있다밍!**`,
+      ephemeral: true
+    });
+  }
+
+  const voted = await checkKoreanBotsVote(interaction.user.id);
+
+  if (!voted) {
+    return interaction.reply({
+      content: "**먼저 하트를 눌러달라밍!**",
+      ephemeral: true
+    });
+  }
+
+  const expType = Math.random() < 0.5 ? "farmExp" : "gatherExp";
+  const rewardExp = getRandomInt(10, 20);
+
+  user[expType] += rewardExp;
+  user.lastHeartExpRewardAt = now;
+
+  saveUsers();
+
+  const farmLevelEmoji = levelEmojis[user.farmLevel] || "🌾";
+  const cafeLevelEmoji = levelEmojis[user.gatherLevel] || "☕";
+
+  const farmGainText = expType === "farmExp" ? ` (+${rewardExp})` : "";
+  const cafeGainText = expType === "gatherExp" ? ` (+${rewardExp})` : "";
+
+  const embed = new EmbedBuilder()
+    .setColor("#F9A8D4")
+    .setTitle("**경험치**")
+    .setDescription(
+`**미닝을 응원해주면 경험치를 선물해준다밍!
+❤️ 하트를 누르고 농사 경험치 또는 카페 경험치를 받아보라밍!
+
+${farmLevelEmoji} 농사 경험치: ${user.farmExp.toLocaleString()}${farmGainText}
+${cafeLevelEmoji} 카페 경험치: ${user.gatherExp.toLocaleString()}${cafeGainText}
+
+⏰ 12시간마다 1회 획득 가능**`
+    );
+
+ return interaction.update({
+  embeds: [embed],
+  components: []
+});
+}
+
+if (interaction.customId === "heart_exp_cancel") {
+  return interaction.update({
+    components: []
+  });
+}
 
   if (yutButtonIds.includes(id)) {
     if (!yutEnabled) {
@@ -5441,6 +5695,21 @@ if (interaction.customId === "use_randomTransferCoupon") {
 /* ---------------- 슬래시 명령어 ---------------- */
 if (!interaction.isChatInputCommand()) return;
 
+const now = new Date();
+const hour = now.getHours();
+const minute = now.getMinutes();
+
+const isMaintenance =
+  (hour === 23 && minute >= 50) ||
+  (hour === 0 && minute < 10);
+
+if (isMaintenance) {
+  return interaction.reply({
+    content: "**현재 미닝세 정산 및 점검이 진행 중이다밍! 00:10분 이후에 다시 이용해달라밍!**",
+    ephemeral: true
+  });
+}
+
 const commandName = interaction.commandName;
 const id = interaction.user.id;
 
@@ -5619,6 +5888,104 @@ if (commandName === "탈퇴") {
       ephemeral: true
     });
   }
+
+/* ---------------- 조각합성 ---------------- */
+if (commandName === "조각합성") {
+  const id = interaction.user.id;
+  const user = ensureUser(id);
+
+  const pieceCount = user.inventory.wildGinsengPiece || 0;
+
+  if (pieceCount < 3) {
+    return interaction.reply({
+      content: `❌ **산삼조각이 부족하다밍! 현재 보유 산삼조각: ${pieceCount.toLocaleString()}개\n필요 산삼조각: 3개**`,
+      ephemeral: true
+    });
+  }
+
+  const craftedCount = Math.floor(pieceCount / 3);
+  const usedPieces = craftedCount * 3;
+
+  user.inventory.wildGinsengPiece -= usedPieces;
+  user.farmCrops.wildGinseng += craftedCount;
+
+  saveUsers();
+
+  const embed = new EmbedBuilder()
+    .setColor("#f59e0b")
+    .setTitle("산삼조각 합성")
+    .setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
+    .setDescription(
+`<:piece:1500337696525254658> **산삼조각 ${usedPieces.toLocaleString()}개를 합성했다밍!**
+
+<:wildGinseng:1489948179615977553> **산삼 ${craftedCount.toLocaleString()}개를 획득했다밍!**
+
+<:piece:1500337696525254658> 산삼조각: ${user.inventory.wildGinsengPiece.toLocaleString()}개 (-${usedPieces.toLocaleString()}개)
+<:wildGinseng:1489948179615977553> 산삼: ${user.farmCrops.wildGinseng.toLocaleString()}개 (+${craftedCount.toLocaleString()}개)`
+    );
+
+  return interaction.reply({
+    embeds: [embed]
+  });
+}
+
+  /* ---------------- 경험치 ---------------- */
+if (commandName === "경험치") {
+  const user = ensureUser(id);
+
+  const now = Date.now();
+const cooldown = 12 * 60 * 60 * 1000;
+
+if (user.lastHeartExpRewardAt && now - user.lastHeartExpRewardAt < cooldown) {
+  const remainingMs = cooldown - (now - user.lastHeartExpRewardAt);
+  const hours = Math.floor(remainingMs / (60 * 60 * 1000));
+  const minutes = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+  const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
+
+  return interaction.reply({
+    content: `**⏳경험치는 ${hours}시간 ${minutes}분 ${seconds}초 후 다시 받을 수 있다밍!**`,
+    ephemeral: true
+  });
+}
+
+  const farmLevelEmoji = levelEmojis[user.farmLevel] || "🌾";
+  const cafeLevelEmoji = levelEmojis[user.gatherLevel] || "☕";
+
+  const embed = new EmbedBuilder()
+    .setColor("#F9A8D4")
+    .setTitle("**경험치**")
+    .setDescription(
+`**미닝을 응원해주면 경험치를 선물해준다밍!
+❤️ 하트를 누르고 농사 경험치 또는 카페 경험치를 받아보라밍!
+
+${farmLevelEmoji} 농사 경험치: ${user.farmExp.toLocaleString()}
+${cafeLevelEmoji} 카페 경험치: ${user.gatherExp.toLocaleString()}
+
+⏳12시간마다 1회 획득 가능**`
+    );
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel("하트 누르기")
+      .setStyle(ButtonStyle.Link)
+      .setURL("https://koreanbots.dev/bots/1487641534462689391"),
+
+    new ButtonBuilder()
+      .setCustomId("heart_exp_reward")
+      .setLabel("경험치 받기")
+      .setStyle(ButtonStyle.Success),
+
+    new ButtonBuilder()
+      .setCustomId("heart_exp_cancel")
+      .setLabel("취소")
+      .setStyle(ButtonStyle.Danger)
+  );
+
+  return interaction.reply({
+    embeds: [embed],
+    components: [row],
+  });
+}
 
 /* ---------------- 출석체크 ---------------- */
 if (commandName === "출석체크") {

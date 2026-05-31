@@ -54,6 +54,10 @@ new SlashCommandBuilder()
   .toJSON(),
 
   new SlashCommandBuilder()
+  .setName("조각합성")
+  .setDescription("산삼조각 3개를 합성해 산삼 1개를 획득합니다."),
+
+  new SlashCommandBuilder()
   .setName("훔쳐보기")
   .setDescription("다른 유저의 정보를 확인합니다.")
   .addUserOption(option =>
