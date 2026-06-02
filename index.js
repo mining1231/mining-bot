@@ -1910,13 +1910,13 @@ function buildMiningTaxEmbed(taxResult) {
 
 ────────────────────
 
-💰 10억 이상 보유 유저 (10%)
+<:money:1489876006893518968>10억 이상 보유 유저 (10%)
 
 ${formatTaxUserList(taxResult.over10B)}
 
 ────────────────────
 
-💸 1억 이상 보유 유저 (5%)
+<:money:1489876006893518968>1억 이상 보유 유저 (5%)
 
 ${formatTaxUserList(taxResult.over100M)}
 
