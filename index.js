@@ -820,7 +820,7 @@ function openQuestionBox() {
   if (rand < 44) {
     return {
       type: "repair",
-      value: 2,
+      value: 1,
       text: "<:repair:1489875654886297640> 수리석 1개를 획득했다밍!"
     };
   }
