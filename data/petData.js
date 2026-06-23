@@ -193,7 +193,17 @@ const petData = {
       nickname: "지돌이",
       grade: "A",
       image: "./assets/pets/jerboa.png",
-      summonText: "**민첩한 움직임이 멈춘 자리에서, 자신감넘치는 지돌이와 눈이마주쳤다.**"
+      summonText: "**민첩한 움직임이 멈춘 자리에서, 자신감넘치는 지돌이와 눈이마주쳤다.**",
+
+      option: {
+        type: "explorePackageBonus",
+        values: {
+          1: 1,
+          10: 2,
+          20: 3,
+          30: 4
+        }
+      }
     },
     {
       key: "fox",
@@ -213,32 +223,92 @@ const petData = {
       }
     }
   ],
+S: [
+  {
+    key: "white_tiger",
+    name: "백호",
+    nickname: "설이",
+    grade: "S",
+    image: "./assets/pets/white_tiger.png",
+    summonText: "**순백의 털이 빛사이로 살짝 보이고 특별한 기운이 감싸고 있는 캡슐 안을 들여다보니 작은 아기설이가 눈을 떴다. 근데 왜 아기일까..?**",
 
-  S: [
-    {
-      key: "white_tiger",
-      name: "백호",
-      nickname: "설이",
-      grade: "S",
-      image: "./assets/pets/white_tiger.png",
-      summonText: "**순백의 털이 빛사이로 살짝 보이고 특별한 기운이 감싸고 있는 캡슐 안을 들여다보니 작은 아기설이가 눈을 떴다. 근데 왜 아기일까..?**"
-    },
+    option: {
+      type: "seolChoice",
+
+      expDoubleChance: {
+        1: 70,
+        10: 80,
+        20: 90,
+        30: 100
+      },
+
+      farmDoubleChance: {
+        1: 50,
+        10: 60,
+        20: 80,
+        30: 100
+      },
+
+      cafeMoneyMultiplier: {
+        1: 20,
+        10: 40,
+        20: 80,
+        30: 160
+      }
+    }
+  },
     {
       key: "phoenix",
       name: "피닉스",
       nickname: "플레어",
       grade: "S",
       image: "./assets/pets/phoenix.png",
-      summonText: "**따뜻한 기운이 주변을 감싸고 이내 화려한 날개를 가진 아기플레어가 모습을 나타냈다. 근데 왜 아기일까..?**"
+      summonText: "**따뜻한 기운이 주변을 감싸고 이내 화려한 날개를 가진 아기플레어가 모습을 나타냈다. 근데 왜 아기일까..?**",
+
+       option: {
+       type: "flareProtect",
+
+    destroyProtectChance: {
+      1: 10,
+      10: 15,
+      20: 20,
+      30: 25
     },
+
+    keepBonusChance: {
+      1: 3,
+      10: 5,
+      20: 7,
+      30: 10
+     }
+    }
+  },
     {
       key: "dinosaur",
       name: "공룡",
       nickname: "크앙이",
       grade: "S",
       image: "./assets/pets/dinosaur.png",
-      summonText: "**오래된 기운을 품은 캡슐이 천천히 흔들리더니 아기크앙이 모습을 드러냈다. 근데 왜 아기지? 아기지만 무섭다..**"
-    }
+      summonText: "**오래된 기운을 품은 캡슐이 천천히 흔들리더니 아기크앙이 모습을 드러냈다. 근데 왜 아기지? 아기지만 무섭다..**",
+
+       option: {
+    type: "krangUpgrade",
+
+    upgradeDiscount: {
+      1: 10,
+      10: 15,
+      20: 20,
+      30: 25
+    },
+
+    levelProtectChance: {
+      1: 10,
+      10: 13,
+      20: 16,
+      30: 20
+     }
+   }
+  }
   ]
 };
 

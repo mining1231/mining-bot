@@ -393,7 +393,9 @@ const defaultUser = {
   key: null,
   level: 1,
   optionChoice: null
-},
+  },
+
+  seolType: null,
 
   farmLevel: 1,
   farmExp: 0,
@@ -1506,7 +1508,7 @@ function buildPetShopSelectMenu(user) {
     .setPlaceholder("펫 상품을 선택해 주세요.")
     .addOptions([
       {
-        label: "일반 펫뽑기",
+        label: "일반뽑기",
         description: "50,000,000원 / D~B 등급 등장",
         value: "normal_pet_gacha",
         emoji: {
@@ -1514,10 +1516,28 @@ function buildPetShopSelectMenu(user) {
           name: "capsule"
         }
       },
-      {
+       {
         label: "펫먹이",
         description: "5,000,000원",
         value: "pet_food",
+        emoji: {
+          id: "1501244821983989831",
+          name: "food"
+        }
+      },
+      {
+        label: "펫먹이 50개 묶음",
+        description: "230,000,000원",
+        value: "pet_food_50",
+        emoji: {
+          id: "1501244821983989831",
+          name: "food"
+        }
+      },
+      {
+        label: "펫먹이 100개 묶음",
+        description: "470,000,000원",
+        value: "pet_food_100",
         emoji: {
           id: "1501244821983989831",
           name: "food"
@@ -1665,6 +1685,16 @@ function updatePetHunger(user) {
   const decrease = passed * 10;
 
   user.pet.hunger = Math.max(0, (user.pet.hunger ?? 100) - decrease);
+
+  if (user.pet.hunger <= 0) {
+  user.pet = {
+    key: null,
+    level: 1,
+    optionChoice: null,
+    hunger: 0,
+    lastHungerAt: 0
+  };
+}
 
   user.pet.lastHungerAt += passed * interval;
 
@@ -2511,6 +2541,38 @@ ctx.fillText(`${hunger}%`, startX + barWidth + 15, startY - 2);
     } else if (pet.option.type === "bankruptcyIgnoreFail") {
       optionText = "50% 확률로 파산신청시 거절 방지";
     }
+
+    // A등급
+    else if (pet.option.type === "attackDurabilityReduce") {
+      optionText = "공격 시 내구도 감소량 3 감소";
+    } else if (pet.option.type === "explorePackageBonus") {
+      optionText = "탐험 완료 시 밍꾸러미 1개 추가 획득";
+    } else if (pet.option.type === "engraveDestroyProtect") {
+      optionText = "각인 파괴 방지 확률 5%";
+    }
+
+    // S등급
+    else if (pet.option.type === "seolChoice") {
+
+    if (user.seolType === "farm") {
+    optionText =
+      "경험치 70% 확률로 2배 획득\n작물 50% 확률로 2배 획득";
+    }
+
+    else if (user.seolType === "cafe") {
+    optionText =
+      "경험치 70% 확률로 2배 획득\n카페 수익 20배 획득";
+    }
+
+  }
+    else if (pet.option.type === "flareProtect") {
+    optionText =
+    "각인 파괴 방지 10%\n각인 유지 확률 +3%";
+  }
+    else if (pet.option.type === "krangUpgrade") {
+    optionText =
+    "강화 비용 10% 할인\n강화 실패 시 하락 방지 10%";
+  }
   }
 
   ctx.fillText(optionText, 230, 870);
@@ -4350,19 +4412,48 @@ if (interaction.customId.startsWith("engrave_upgrade_")) {
 
     user.inventory.engraveStone -= data.stone;
 
-    const rand = Math.random() * 100;
+const rand = Math.random() * 100;
 
-    let resultText = "";
-    let color = "#8b5cf6";
+let resultText = "";
+let color = "#8b5cf6";
+let flareKeepBonus = 0;
+let flareProtectChance = 0;
+
+if (user.pet?.key === "phoenix") {
+  const pet = getPetByKey("phoenix");
+
+  const levels = Object.keys(pet.option.destroyProtectChance)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (const lvl of levels) {
+    if ((user.pet.level || 1) >= lvl) {
+      flareProtectChance = pet.option.destroyProtectChance[lvl];
+      flareKeepBonus = pet.option.keepBonusChance[lvl];
+      break;
+    }
+  }
+}
 
     if (rand < data.success) {
-      user.engraveLevel += 1;
-      resultText = `✨ **각인 성공이다밍! → Lv.${user.engraveLevel}**`;
-      color = "#8b5cf6";
-    } else if (rand < data.success + data.keep) {
-      resultText = `➖ **각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
-      color = "#facc15";
-    } else {
+  user.engraveLevel += 1;
+  resultText = `✨ **각인 성공이다밍! → Lv.${user.engraveLevel}**`;
+  color = "#8b5cf6";
+}
+
+else if (rand < data.success + data.keep + flareKeepBonus) {
+
+  if (user.pet?.key === "phoenix") {
+    resultText = `**플레어의 유지확률 증가 효과가 발동했다밍!**
+➖ **각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
+  } else {
+    resultText = `➖ **각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
+  }
+
+  color = "#facc15";
+}
+
+else {
       let foxProtectChance = 0;
 
       if (user.pet?.key === "fox") {
@@ -4383,19 +4474,29 @@ if (interaction.customId.startsWith("engrave_upgrade_")) {
       }
 
       const foxProtect = Math.random() * 100 < foxProtectChance;
+      const flareProtect =
+  Math.random() * 100 < flareProtectChance;
 
-      if (foxProtect) {
-        resultText = `**폭시의 고유옵션이 발동했다밍!**
+if (foxProtect) {
+  resultText = `**폭시의 고유옵션이 발동했다밍!**
 ➖ **파괴를 막고 각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
-        color = "#facc15";
-      } else {
-        user.level = 1;
-        user.durability = 100;
-        user.engraveLevel = 0;
+  color = "#facc15";
+}
 
-        resultText = "💥 **파괴됐다밍... 무기가 Lv.1로 초기화되고 별의각인도 초기화됐다밍!**";
-        color = "#ef4444";
-      }
+else if (flareProtect) {
+  resultText = `**플레어의 고유옵션이 발동했다밍!**
+➖ **파괴를 막고 각인이 유지됐다밍! → Lv.${user.engraveLevel}**`;
+  color = "#facc15";
+}
+
+else {
+  user.level = 1;
+  user.durability = 100;
+  user.engraveLevel = 0;
+
+  resultText = "💥 **파괴됐다밍... 무기가 Lv.1로 초기화되고 별의각인도 초기화됐다밍!**";
+  color = "#ef4444";
+}
     }
 
     const afterStars = getEngraveStars(user.engraveLevel);
@@ -4444,6 +4545,49 @@ ${resultData ? `**성공:** ${resultData.success}%
   } finally {
     processingInteractions.delete(processKey);
   }
+}
+
+/* ---------------- 설이 옵션 선택 버튼------------- */
+if (interaction.customId === "seol_farm") {
+  const user = ensureUser(interaction.user.id);
+
+  if (user.seolType) {
+    return interaction.reply({
+      content: "❌ **이미 설이의 옵션을 선택했다밍!**",
+      ephemeral: true
+    });
+  }
+
+  user.seolType = "farm";
+
+  saveUsers();
+
+  return interaction.update({
+    content: "**설이의 농사 옵션을 선택했다밍!**",
+    embeds: [],
+    components: []
+  });
+}
+
+if (interaction.customId === "seol_cafe") {
+  const user = ensureUser(interaction.user.id);
+
+  if (user.seolType) {
+    return interaction.reply({
+      content: "❌ **이미 설이의 옵션을 선택했다밍!**",
+      ephemeral: true
+    });
+  }
+
+  user.seolType = "cafe";
+
+  saveUsers();
+
+  return interaction.update({
+    content: "**설이의 카페 옵션을 선택했다밍!**",
+    embeds: [],
+    components: []
+  });
 }
 
 /* ---------------- 강화 버튼------------- */
@@ -4515,6 +4659,7 @@ if (interaction.customId.startsWith("upgrade_")) {
 
     let cost = data.cost;
     let wolfDiscount = 0;
+    let dinosaurDiscount = 0;
 
     if (user.pet?.key === "wolf") {
       const pet = getPetByKey("wolf");
@@ -4534,6 +4679,23 @@ if (interaction.customId.startsWith("upgrade_")) {
 
       cost = Math.floor(data.cost * (1 - wolfDiscount));
     }
+
+    if (user.pet?.key === "dinosaur") {
+  const pet = getPetByKey("dinosaur");
+
+  const levels = Object.keys(pet.option.costDiscount)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (const lvl of levels) {
+    if ((user.pet.level || 1) >= lvl) {
+      dinosaurDiscount = pet.option.costDiscount[lvl];
+      break;
+    }
+  }
+
+  cost = Math.floor(data.cost * (1 - dinosaurDiscount / 100));
+}
 
     const successRate = data.success;
     const destroyRate = data.destroy;
@@ -4559,33 +4721,69 @@ if (interaction.customId.startsWith("upgrade_")) {
 
     user.money -= cost;
 
-    const rand = Math.random() * 100;
+const rand = Math.random() * 100;
 
-    let result = "";
-    let color = "#57F287";
+let dinosaurProtectChance = 0;
+
+if (user.pet?.key === "dinosaur") {
+  const pet = getPetByKey("dinosaur");
+
+  const levels = Object.keys(pet.option.levelProtectChance)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (const lvl of levels) {
+    if ((user.pet.level || 1) >= lvl) {
+      dinosaurProtectChance =
+        pet.option.levelProtectChance[lvl];
+      break;
+    }
+  }
+}
+
+const dinosaurProtect =
+  Math.random() * 100 < dinosaurProtectChance;
+
+let result = "";
+let color = "#57F287";
 
     if (rand <= destroyRate) {
-      user.level = 1;
-      result = "💥 **무기 파괴됐다밍... Lv1로 초기화다밍!**";
-      color = "#ff0000";
-    } else if (rand <= destroyRate + successRate) {
-      user.level += 1;
-      result = `✅ **강화 성공이다밍! → Lv${user.level}**`;
-      color = "#57F287";
-    } else {
-      color = "#ff0000";
+  user.level = 1;
+  result = "💥 **무기 파괴됐다밍... Lv1로 초기화다밍!**";
+  color = "#ff0000";
+}
 
-      if (beforeLevel % 10 === 0) {
-        result = `❌ **강화 실패다밍... 단계 유지다밍 (Lv${user.level})**`;
-      } else {
-        user.level = Math.max(1, user.level - 1);
-        result = `❌ **강화 실패다밍... → Lv${user.level}**`;
-      }
-    }
+else if (rand <= destroyRate + successRate) {
+  user.level += 1;
+  result = `✅ **강화 성공이다밍! → Lv${user.level}**`;
+  color = "#57F287";
+}
+
+else {
+  color = "#ff0000";
+
+  if (beforeLevel % 10 === 0) {
+    result = `❌ **강화 실패다밍... 단계 유지다밍 (Lv${user.level})**`;
+  }
+
+  else if (dinosaurProtect) {
+    result = `**크앙이의 고유옵션이 발동했다밍!**
+**강화 실패를 막고 단계가 유지됐다밍! (Lv${user.level})**`;
+  }
+
+  else {
+    user.level = Math.max(1, user.level - 1);
+    result = `❌ **강화 실패다밍... → Lv${user.level}**`;
+  }
+}
 
     if (wolfDiscount > 0) {
       result += `\n**울피의 고유옵션으로 강화 비용 ${Math.floor(wolfDiscount * 100)}% 할인됐다밍!**`;
     }
+
+    if (dinosaurDiscount > 0) {
+  result += `\n**크앙이의 고유옵션으로 강화 비용 ${dinosaurDiscount}% 할인됐다밍!**`;
+}
 
     if (user.level !== beforeLevel) {
       user.durability = 100;
@@ -4598,6 +4796,7 @@ if (interaction.customId.startsWith("upgrade_")) {
 
     let nextCost = currentData.cost;
     let nextWolfDiscount = 0;
+    let nextDinosaurDiscount = 0;
 
     if (user.pet?.key === "wolf") {
       const pet = getPetByKey("wolf");
@@ -4618,10 +4817,31 @@ if (interaction.customId.startsWith("upgrade_")) {
       nextCost = Math.floor(currentData.cost * (1 - nextWolfDiscount));
     }
 
+    if (user.pet?.key === "dinosaur") {
+  const pet = getPetByKey("dinosaur");
+
+  const levels = Object.keys(pet.option.costDiscount)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (const lvl of levels) {
+    if ((user.pet.level || 1) >= lvl) {
+      nextDinosaurDiscount = pet.option.costDiscount[lvl];
+      break;
+    }
+  }
+
+  nextCost = Math.floor(
+    currentData.cost * (1 - nextDinosaurDiscount / 100)
+  );
+}
+
     const nextDiscountText =
-      nextWolfDiscount > 0
-        ? `\n**울피의 고유옵션 할인: -${Math.floor(nextWolfDiscount * 100)}% 적용됐다밍!**`
-        : "";
+  nextWolfDiscount > 0
+    ? `\n**울피의 고유옵션 할인: -${Math.floor(nextWolfDiscount * 100)}% 적용됐다밍!**`
+    : nextDinosaurDiscount > 0
+    ? `\n**크앙이의 고유옵션 할인: -${nextDinosaurDiscount}% 적용됐다밍!**`
+    : "";
 
     const upgradeButton = new ButtonBuilder()
       .setCustomId(`upgrade_${Date.now()}`)
@@ -5439,11 +5659,186 @@ ${pet.summonText}
     return;
   }
 
-  // =========================
+// =========================
+// 2. 고급뽑기
+// =========================
+if (selected === "premium_pet_gacha") {
+
+  // 🔥 농사 Lv4 + 카페 Lv4 이상
+  if (user.farmLevel < 4 || user.cafeLevel < 4) {
+    return interaction.reply({
+      content: "**농사 Lv.4, 카페 Lv.4 이상부터 고급뽑기가 가능하다밍!**",
+      ephemeral: true
+    });
+  }
+
+  const price = 250000000;
+
+  if (user.money < price) {
+    return interaction.reply({
+      content: "**돈이 부족하다밍!**",
+      ephemeral: true
+    });
+  }
+
+  user.money -= price;
+
+  const rand = Math.random() * 100;
+
+  let pet;
+
+  // B등급 65%
+  if (rand < 65) {
+    const pool = petData.B;
+    pet = pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // A등급 32%
+  else if (rand < 97) {
+    const pool = petData.A;
+    pet = pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  // S등급 3%
+  else {
+    const sRand = Math.random() * 100;
+
+    if (sRand < 20) {
+      pet = petData.S.find(p => p.key === "white_tiger"); // 설이
+    }
+    else if (sRand < 60) {
+      pet = petData.S.find(p => p.key === "phoenix"); // 플레어
+    }
+    else {
+      pet = petData.S.find(p => p.key === "dinosaur"); // 크앙이
+    }
+  }
+
+  // 기존 펫 덮어쓰기
+  user.pet = {
+    key: pet.key,
+    level: 1,
+    hunger: 100,
+    lastHungerAt: Date.now()
+  };
+
+  saveUsers();
+
+  // 등급별 색상
+  let color = "#8B5CF6"; // B
+
+  if (pet.grade === "A") color = "#F59E0B";
+  if (pet.grade === "S") color = "#FACC15";
+
+  let description =
+
+`**${pet.grade}등급**
+
+${pet.summonText}
+
+<:money:1489876006893518968> **잔액: ${user.money.toLocaleString()}원**`;
+
+if (pet.key === "white_tiger" && !user.seolType) {
+
+  description =
+
+`**${pet.grade}등급**
+
+${pet.summonText}
+
+🌾 **농사 옵션**
+• 경험치 70% 확률로 2배 획득
+• 작물 50% 확률로 2배 획득
+
+☕ **카페 옵션**
+• 경험치 70% 확률로 2배 획득
+• 카페 수익 20배 획득
+
+⚠️ **최초 1회만 선택 가능하며 변경할 수 없다밍!**
+
+<:money:1489876006893518968> **잔액: ${user.money.toLocaleString()}원**`;
+
+}
+
+const resultEmbed = new EmbedBuilder()
+  .setColor(color)
+  .setAuthor({
+    name: interaction.user.username,
+    iconURL: interaction.user.displayAvatarURL()
+  })
+  .setTitle("**펫뽑기를 완료 했다밍!**")
+  .setDescription(description);
+
+  const updatedEmbed = buildPetShopEmbed(user);
+  const updatedMenu = buildPetShopSelectMenu(user);
+
+  await interaction.update({
+    embeds: [updatedEmbed],
+    components: [new ActionRowBuilder().addComponents(updatedMenu)]
+  });
+
+if (pet.key === "white_tiger" && !user.seolType) {
+
+  const farmButton = new ButtonBuilder()
+    .setCustomId("seol_farm")
+    .setLabel("농사 옵션")
+    .setStyle(ButtonStyle.Success);
+
+  const cafeButton = new ButtonBuilder()
+    .setCustomId("seol_cafe")
+    .setLabel("카페 옵션")
+    .setStyle(ButtonStyle.Primary);
+
+  const row = new ActionRowBuilder().addComponents(
+    farmButton,
+    cafeButton
+  );
+
+  await interaction.followUp({
+    embeds: [resultEmbed],
+    components: [row]
+  });
+
+  } else {
+
+  await interaction.followUp({
+    embeds: [resultEmbed]
+  });
+
+}
+
+return;
+}
+
+// =========================
 // 펫먹이 구매
 // =========================
-if (selected === "pet_food") {
-  const price = 5000000;
+if (
+  selected === "pet_food" ||
+  selected === "pet_food_50" ||
+  selected === "pet_food_100"
+) {
+  let amount = 0;
+  let price = 0;
+  let label = "";
+
+  if (selected === "pet_food") {
+    amount = 1;
+    price = 5000000;
+    label = "펫먹이";
+  }
+
+  if (selected === "pet_food_50") {
+    amount = 50;
+    price = 230000000;
+    label = "펫먹이 50개 묶음";
+  }
+
+  if (selected === "pet_food_100") {
+    amount = 100;
+    price = 470000000;
+    label = "펫먹이 100개 묶음";
+  }
 
   // 펫 없으면 구매 불가
   if (!user.pet?.key) {
@@ -5466,20 +5861,20 @@ if (selected === "pet_food") {
     user.inventory.petFood = 0;
   }
 
-  user.inventory.petFood += 1;
+  user.inventory.petFood += amount;
 
   saveUsers();
 
   const buyEmbed = new EmbedBuilder()
     .setColor("#9bc2fc")
     .setAuthor({
-    name: interaction.user.username,
-    iconURL: interaction.user.displayAvatarURL()
-  })
+      name: interaction.user.username,
+      iconURL: interaction.user.displayAvatarURL()
+    })
     .setTitle("**구매 완료**")
     .setDescription(
 
-`<:food:1501244821983989831> **펫에게 줄 먹이를 구매했다밍!**
+`<:food:1501244821983989831> **${label}을(를) 구매했다밍!**
 
 <:food:1501244821983989831>: ${user.inventory.petFood}개
 **잔액**: ${user.money.toLocaleString()}원 (-${price.toLocaleString()}원)`
@@ -7175,6 +7570,8 @@ if (commandName === "카페") {
     let moneyChange = 0;
     let bonusAmount = 0;
     let petBonusAmount = 0;
+    let seolBonusAmount = 0;
+    let seolExpDouble = false;
     let color = "#22c55e";
     let title = "카페 성공";
 
@@ -7209,6 +7606,29 @@ if (commandName === "카페") {
         }
       }
 
+if (
+  user.pet?.key === "white_tiger" &&
+  user.seolType === "cafe"
+) {
+  const pet = getPetByKey("white_tiger");
+
+  let multiplier = 20;
+
+  const levels = Object.keys(pet.option.cafeMoneyMultiplier)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (const lvl of levels) {
+    if ((user.pet.level || 1) >= lvl) {
+      multiplier = pet.option.cafeMoneyMultiplier[lvl];
+      break;
+    }
+  }
+
+  seolBonusAmount = base * multiplier;
+  moneyChange += seolBonusAmount;
+}
+
       user.money += moneyChange;
       color = "#22c55e";
       title = "카페 성공";
@@ -7223,6 +7643,32 @@ if (commandName === "카페") {
       color = "#ef4444";
       title = "카페 실패";
     }
+
+    if (
+  user.pet?.key === "white_tiger"
+  && Math.random() * 100 <
+  (() => {
+    const pet = getPetByKey("white_tiger");
+
+    let chance = 70;
+
+    const levels = Object.keys(pet.option.expDoubleChance)
+      .map(Number)
+      .sort((a, b) => b - a);
+
+    for (const lvl of levels) {
+      if ((user.pet.level || 1) >= lvl) {
+        chance = pet.option.expDoubleChance[lvl];
+        break;
+      }
+    }
+
+    return chance;
+  })()
+) {
+  expChange *= 2;
+  seolExpDouble = true;
+}
 
     user.gatherExp += expChange;
 
@@ -7255,6 +7701,16 @@ if (commandName === "카페") {
         ? `**토토의 고유옵션 보너스: ${petBonusAmount.toLocaleString()}원**`
         : "";
 
+    const seolBonusText =
+      seolBonusAmount > 0
+        ? `**설이의 카페 보너스: ${seolBonusAmount.toLocaleString()}원**`
+        : "";
+
+    const seolExpText =
+      seolExpDouble
+        ? "**설이의 경험치 2배 효과가 발동했다밍!**"
+        : "";
+
     const expText =
       expChange === 0
         ? ""
@@ -7274,6 +7730,8 @@ ${result.message}
 
 ${bonusText}
 ${petBonusText}
+${seolBonusText}
+${seolExpText}
 **<:money:1489876006893518968> 잔액 : ${user.money.toLocaleString()}원 ${moneyText}**
 **${currentLevelEmoji} 카페 경험치: ${user.gatherExp} ${expText}**
 **남은횟수 : ${remainingCount}회**`
@@ -7367,6 +7825,8 @@ if (commandName === "농사") {
   let description = "";
   let thumbnailImage = null;
   let failImage = null;
+  let seolCropDouble = false;
+  let seolExpDouble = false;
 
   user.farmCount += 1;
   const remainingCount = 30 - user.farmCount;
@@ -7394,8 +7854,58 @@ if (commandName === "농사") {
     color = cropInfo.color || "#22c55e";
     thumbnailImage = cropInfo.image || null;
 
-    user.farmCrops[cropKey] += crop.amount;
-    user.farmExp += crop.exp;
+let cropAmount = crop.amount;
+let expAmount = crop.exp;
+
+if (
+  user.pet?.key === "white_tiger" &&
+  user.seolType === "farm"
+) {
+  const pet = getPetByKey("white_tiger");
+
+  let cropChance = 50;
+
+  const levels = Object.keys(pet.option.farmDoubleChance)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (const lvl of levels) {
+    if ((user.pet.level || 1) >= lvl) {
+      cropChance = pet.option.farmDoubleChance[lvl];
+      break;
+    }
+  }
+
+  if (Math.random() * 100 < cropChance) {
+    cropAmount *= 2;
+    seolCropDouble = true;
+  }
+}
+
+if (user.pet?.key === "white_tiger") {
+  const pet = getPetByKey("white_tiger");
+
+  let expChance = 70;
+
+  const levels = Object.keys(pet.option.expDoubleChance)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (const lvl of levels) {
+    if ((user.pet.level || 1) >= lvl) {
+      expChance = pet.option.expDoubleChance[lvl];
+      break;
+    }
+  }
+
+  if (Math.random() * 100 < expChance) {
+    expAmount *= 2;
+    seolExpDouble = true;
+  }
+}
+
+user.farmCrops[cropKey] += cropAmount;
+user.farmExp += expAmount;
 
     const total = user.farmCrops[cropKey];
     const cropEmoji = cropInfo.emoji || "🌾";
@@ -7403,7 +7913,7 @@ if (commandName === "농사") {
     let successMent = "";
 
     if (cropKey === "peach") {
-      successMent = `${cropEmoji} **탐스럽게 익은 복숭아 ${crop.amount}개를 수확했다밍! 달콤한 향이 기분을 좋게 만든다밍!!**`;
+      successMent = `${cropEmoji} **탐스럽게 익은 복숭아 ${cropAmount}개를 수확했다밍! 달콤한 향이 기분을 좋게 만든다밍!!**`;
     } else if (cropKey === "strawberry") {
       successMent = "**새콤달콤하게 잘 익은 딸기를 수확했다밍!**";
     } else if (cropKey === "shineMuscat") {
@@ -7413,7 +7923,7 @@ if (commandName === "농사") {
     } else if (cropKey === "wildGinseng") {
       successMent = "**10년에 한 번 나올까 말까 한 귀한 삼을 마침내 수확했다밍! 오늘은 운이 엄청나게 따르는 날인 것 같다밍!!**";
     } else {
-      successMent = `${cropEmoji} **${crop.amount}개를 수확했다밍!**`;
+      successMent = `${cropEmoji} **${cropAmount}개를 수확했다밍!**`;
     }
 
     let newLevel = user.farmLevel;
@@ -7430,16 +7940,26 @@ if (commandName === "농사") {
     user.farmLevel = newLevel;
 
     const newLevelEmoji = levelEmojis[user.farmLevel] || "🌱";
-    const cropText = `${cropEmoji}: **${total}개 (+${crop.amount}개)**`;
-    const expText = `${newLevelEmoji} **농사경험치**: ${user.farmExp} (+${crop.exp})`;
+    const cropText = `${cropEmoji}: **${total}개 (+${cropAmount}개)**`;
+    const expText = `${newLevelEmoji} **농사경험치**: ${user.farmExp} (+${expAmount})`;
 
-    description =
+const seolCropText =
+  seolCropDouble
+    ? "\n**설이의 작물 2배 효과가 발동했다밍!**"
+    : "";
+
+const seolExpText =
+  seolExpDouble
+    ? "\n**설이의 경험치 2배 효과가 발동했다밍!**"
+    : "";
+
+description =
 `${successMent}
 
 **획득한 작물**
 ${cropText}
 
-${expText}`;
+${expText}${seolCropText}${seolExpText}`;
   } else {
     color = "#ef4444";
     title = "❌ **농사 실패**";
@@ -7530,12 +8050,31 @@ if (commandName === "탐험") {
 
   let gotMingBundle = false;
 
+let mingBundleReward = 1;
+
+if (user.pet?.key === "jerboa") {
+  const pet = getPetByKey("jerboa");
+
+  if (pet?.option?.values) {
+    const levels = Object.keys(pet.option.values)
+      .map(Number)
+      .sort((a, b) => b - a);
+
+    for (const lvl of levels) {
+      if ((user.pet.level || 1) >= lvl) {
+        mingBundleReward += pet.option.values[lvl];
+        break;
+      }
+    }
+  }
+}
+
 if (user.exploreCount === 100) {
   if (user.inventory.mingBundle === undefined) {
     user.inventory.mingBundle = 0;
   }
 
-  user.inventory.mingBundle += 1;
+  user.inventory.mingBundle += mingBundleReward;
   gotMingBundle = true;
 }
 
@@ -7603,7 +8142,10 @@ description =
 
 **오늘 가능한 탐험을 전부 완료했다밍! 너에게 밍꾸러미를 선물해주겠다밍!**
 
-**<:mingbox:1504908502609432668>: ${user.inventory.mingBundle.toLocaleString()}개 (+1)**`
+${user.pet?.key === "jerboa"
+  ? `**지돌이의 고유 옵션으로 밍꾸러미를 추가 획득했다밍! (+${mingBundleReward - 1})**
+`
+  : ""}**<:mingbox:1504908502609432668>: ${user.inventory.mingBundle.toLocaleString()}개 (+${mingBundleReward})**`
 : ""}
 
 **남은 탐험 횟수: ${100 - user.exploreCount}회**`;}
