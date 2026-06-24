@@ -486,6 +486,15 @@ new SlashCommandBuilder()
       .setName("유저")
       .setDescription("가방을 확인할 유저")
       .setRequired(true)
+  ),
+  new SlashCommandBuilder()
+  .setName("미닝세채널설정")
+  .setDescription("미닝세 공지 채널을 설정한다밍!")
+  .addChannelOption(option =>
+    option
+      .setName("채널")
+      .setDescription("미닝세 공지가 출력될 채널")
+      .setRequired(true)
   )
 
 ];

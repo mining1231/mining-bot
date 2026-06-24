@@ -3,17 +3,17 @@ module.exports = {
     weapon15: {
       level: 10,
       name: "비파형 동검",
-      price: 1000000
+      price: 1500000
     },
     weapon25: {
       level: 20,
       name: "갈퀴",
-      price: 20000000
+      price: 30000000
     },
     weapon35: {
       level: 30,
       name: "롱소드",
-      price: 300000000
+      price: 400000000
     }
   },
 

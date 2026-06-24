@@ -803,8 +803,33 @@ users = readJsonFile(USERS_FILE, {});
 coupons = readJsonFile(COUPONS_FILE, {});
 marketState = readJsonFile(MARKET_FILE, marketState);
 
+const WITHDRAW_FILE = path.join(
+  __dirname,
+  "withdrawCooldowns.json"
+);
+
+let withdrawCooldowns =
+  readJsonFile(WITHDRAW_FILE, {});
+
+function saveWithdrawCooldowns() {
+  writeJsonFile(
+    WITHDRAW_FILE,
+    withdrawCooldowns
+  );
+}
+
 function saveUsers() {
   writeJsonFile(USERS_FILE, users);
+}
+
+const SETTINGS_FILE = path.join(__dirname, "settings.json");
+
+let settings = readJsonFile(SETTINGS_FILE, {
+  miningTaxChannels: {}
+});
+
+function saveSettings() {
+  writeJsonFile(SETTINGS_FILE, settings);
 }
 
 function openQuestionBox() {
@@ -1430,7 +1455,7 @@ function buildShopSelectMenu(user) {
     .addOptions([
       {
         label: "Lv10 비파형 동검",
-        description: "1,000,000원",
+        description: "1,500,000원",
         value: "weapon15",
         emoji: {
           id: "1489875492051091536",
@@ -1439,7 +1464,7 @@ function buildShopSelectMenu(user) {
       },
       {
         label: "Lv20 갈퀴",
-        description: "20,000,000원",
+        description: "30,000,000원",
         value: "weapon25",
         emoji: {
           id: "1489875492051091536",
@@ -1448,7 +1473,7 @@ function buildShopSelectMenu(user) {
       },
       {
         label: "Lv30 롱소드",
-        description: "300,000,000원",
+        description: "400,000,000원",
         value: "weapon35",
         emoji: {
           id: "1489875492051091536",
@@ -1516,6 +1541,15 @@ function buildPetShopSelectMenu(user) {
           name: "capsule"
         }
       },
+      {
+        label: "고급뽑기",
+        description: "250,000,000원 / B~S 등급 등장",
+        value: "premium_pet_gacha",
+        emoji: {
+          id: "1518219183974776932",
+          name: "capsule2"
+        }
+      },
        {
         label: "펫먹이",
         description: "5,000,000원",
@@ -1527,7 +1561,7 @@ function buildPetShopSelectMenu(user) {
       },
       {
         label: "펫먹이 50개 묶음",
-        description: "230,000,000원",
+        description: "250,000,000원",
         value: "pet_food_50",
         emoji: {
           id: "1501244821983989831",
@@ -1536,7 +1570,7 @@ function buildPetShopSelectMenu(user) {
       },
       {
         label: "펫먹이 100개 묶음",
-        description: "470,000,000원",
+        description: "500,000,000원",
         value: "pet_food_100",
         emoji: {
           id: "1501244821983989831",
@@ -1694,6 +1728,9 @@ function updatePetHunger(user) {
     hunger: 0,
     lastHungerAt: 0
   };
+
+  saveUsers();
+  return;
 }
 
   user.pet.lastHungerAt += passed * interval;
@@ -1973,16 +2010,24 @@ async function runMiningTaxIfNeeded() {
   const taxResult = await applyMiningTax();
   const embed = buildMiningTaxEmbed(taxResult);
 
-  const channel = client.channels.cache.get(TAX_LOG_CHANNEL_ID);
+for (const guildId in settings.miningTaxChannels) {
+  const channelId = settings.miningTaxChannels[guildId];
 
-  if (!channel) {
-    console.error("미닝세 공지 채널을 찾을 수 없습니다.");
-    return;
+  const channel = client.channels.cache.get(channelId);
+
+  if (!channel) continue;
+
+  try {
+    await channel.send({
+      embeds: [embed]
+    });
+  } catch (err) {
+    console.error(
+      `미닝세 전송 실패 (${guildId})`,
+      err
+    );
   }
-
-  await channel.send({
-    embeds: [embed]
-  });
+}
 }
 
 const lottoResults = [
@@ -1998,20 +2043,20 @@ const lottoResults = [
 
   {
     name: "**1등 당첨**",
-    multiplier: 7,
+    multiplier: 5,
     chance: 3.2,
     type: "win",
-    effect:"배팅한 금액의 7배를 얻습니다.",
+    effect:"배팅한 금액의 5배를 얻습니다.",
     message:
       "**드디어 1등에 당첨됐다밍!!! 이 짜릿한 순간 자체가 진짜 값지다밍!**"
   },
 
   {
     name: "**2등 당첨**",
-    multiplier: 3,
+    multiplier: 2,
     chance: 11.4,
     type: "win",
-    effect:"배팅한 금액의 3배를 얻습니다.",
+    effect:"배팅한 금액의 2배를 얻습니다.",
     message:
       "**숫자 1개 차이로 아쉽게 1등을 놓쳤다밍…! 그래도 이 정도면 운이 꽤 따라준 편이지!**"
   },
@@ -2048,20 +2093,20 @@ const lottoResults = [
 
   {
     name: "**소매치기 등장**",
-    multiplier: -3,
+    multiplier: -2,
     chance: 14,
     type: "lose",
-    effect: "배팅한 금액의 3배를 잃습니다.",
+    effect: "배팅한 금액의 2배를 잃습니다.",
     message:
       "**로또를 구매하고 집에 가려는데 소매치기 당해 로또용지를 날렸다밍 결과를 알 수 없다니 ㅠㅠ**"
   },
 
   {
     name: "**로또용지 분실**",
-    multiplier: -7,
+    multiplier: -5,
     chance: 6,
     type: "lose",
-    effect: "배팅한 금액의 7배를 잃습니다.",
+    effect: "배팅한 금액의 5배를 잃습니다.",
     message:
       "**로또 결과를 확인했는데… 번호가 전부 맞았다밍?! 근데 아무리 찾아봐도 로또용지가 안 보인다밍…**"
   }
@@ -2086,21 +2131,21 @@ function getLottoResult() {
 const fishingResults = [
   {
     name: "**낚시 실패**",
-    multiplier: -7,
+    multiplier: -5,
     chance: 4.5,
     type: "lose",
-    effect: "배팅한 금액의 7배를 잃습니다.",
+    effect: "배팅한 금액의 5배를 잃습니다.",
     image: "./assets/fishing/fail1.png",
-    message: "**하루 종일 낚싯바늘만 바닥에 걸려 아무것도 낚지 못했다밍… 오늘 낚시는 완전히 공쳤다밍… 배팅액의 7배인 {amount}원을 잃었다밍ㅠ**"
+    message: "**하루 종일 낚싯바늘만 바닥에 걸려 아무것도 낚지 못했다밍… 오늘 낚시는 완전히 공쳤다밍… 배팅액의 5배인 {amount}원을 잃었다밍ㅠ**"
   },
   {
     name: "**낚시 실패**",
-    multiplier: -3,
+    multiplier: -2,
     chance: 19,
     type: "lose",
-    effect: "배팅한 금액의 3배를 잃습니다.",
+    effect: "배팅한 금액의 2배를 잃습니다.",
     image: "./assets/fishing/fail2.png",
-    message: "**엄청난 물고기가 걸린 줄 알았지만 끝내 낚싯줄이 끊어져버렸다밍… 배팅액의 3배인 {amount}원을 잃었다밍…**"
+    message: "**엄청난 물고기가 걸린 줄 알았지만 끝내 낚싯줄이 끊어져버렸다밍… 배팅액의 2배인 {amount}원을 잃었다밍…**"
   },
   {
     name: "**낚시 실패**",
@@ -2122,30 +2167,30 @@ const fishingResults = [
   },
   {
     name: "**낚시 성공**",
-    multiplier: 3,
+    multiplier: 2,
     chance: 18,
     type: "win",
-    effect: "배팅한 금액의 3배를 얻습니다.",
+    effect: "배팅한 금액의 2배를 얻습니다.",
     image: "./assets/fishing/success2.png",
-    message: "**상태 좋아 보이는 광어를 낚아올렸다밍! 보상으로 배팅액의 3배인 {amount}원을 얻었다밍!**"
+    message: "**상태 좋아 보이는 광어를 낚아올렸다밍! 보상으로 배팅액의 2배인 {amount}원을 얻었다밍!**"
   },
   {
     name: "**낚시 성공**",
-    multiplier: 4,
+    multiplier: 3,
     chance: 6.5,
     type: "win",
-    effect: "배팅한 금액의 4배를 얻습니다.",
+    effect: "배팅한 금액의 3배를 얻습니다.",
     image: "./assets/fishing/success3.png",
-    message: "**제법 쏠쏠한 수확이다밍! 큼직한 돌돔을 낚아올렸다밍! 이 정도면 꽤 만족할 만한 결과다밍! 보상으로 배팅액의 4배인 {amount}원을 얻었다밍!**"
+    message: "**제법 쏠쏠한 수확이다밍! 큼직한 돌돔을 낚아올렸다밍! 이 정도면 꽤 만족할 만한 결과다밍! 보상으로 배팅액의 3배인 {amount}원을 얻었다밍!**"
   },
   {
     name: "**낚시 성공**",
-    multiplier: 7,
+    multiplier: 5,
     chance: 2.95,
     type: "win",
-    effect: "배팅한 금액의 7배를 얻습니다.",
+    effect: "배팅한 금액의 5배를 얻습니다.",
     image: "./assets/fishing/success4.png",
-    message: "**수면이 요동치더니… 대왕오징어 등장! 이 정도면 오늘은 끝내도 될 수준이다밍! 보상으로 배팅액의 7배인 {amount}원을 얻었다밍!**"
+    message: "**수면이 요동치더니… 대왕오징어 등장! 이 정도면 오늘은 끝내도 될 수준이다밍! 보상으로 배팅액의 5배인 {amount}원을 얻었다밍!**"
   },
   {
     name: "**낚시 성공**",
@@ -2178,21 +2223,21 @@ function getFishingResult() {
 const gambleTiers = [
   {
     name: "언랭",
-    multiplier: -7,
+    multiplier: -5,
     chance: 5,
     icon: "https://cdn.discordapp.com/emojis/1481642730059858112.png?size=512",
     bg: "./assets/pubg/unrank.png",
     color: "#9CA3AF",
-    message: "언랭은 배팅한 금액의 7배를 잃습니다."
+    message: "언랭은 배팅한 금액의 5배를 잃습니다."
   },
   {
     name: "브론즈",
-    multiplier: -3,
+    multiplier: -2,
     chance: 20,
     icon: "https://cdn.discordapp.com/emojis/1481642775333306451.png?size=512",
     bg: "./assets/pubg/bronze.png",
     color: "#CD7F32",
-    message: "브론즈는 배팅한 금액의 3배를 잃습니다."
+    message: "브론즈는 배팅한 금액의 2배를 잃습니다."
   },
   {
     name: "실버",
@@ -2214,21 +2259,21 @@ const gambleTiers = [
   },
   {
     name: "플래티넘",
-    multiplier: 3,
+    multiplier: 2,
     chance: 9.5,
     icon: "https://cdn.discordapp.com/emojis/1481642886864044152.png?size=512",
     bg: "./assets/pubg/platinum.png",
     color: "#00C896",
-    message: "플래티넘은 배팅한 금액의 3배를 얻습니다."
+    message: "플래티넘은 배팅한 금액의 2배를 얻습니다."
   },
   {
     name: "크리스탈",
-    multiplier: 7,
+    multiplier: 5,
     chance: 3.8,
     icon: "https://cdn.discordapp.com/emojis/1481642989267849397.png?size=512",
     bg: "./assets/pubg/crystal.png",
     color: "#5DADE2",
-    message: "크리스탈은 배팅한 금액의 7배를 얻습니다."
+    message: "크리스탈은 배팅한 금액의 5배를 얻습니다."
   },
   {
     name: "다이아",
@@ -2459,8 +2504,8 @@ async function drawPetInfoImage(user) {
   const petLevel = user.pet?.level || 1;
 
   // 이름 / 레벨
-  ctx.fillText(petName, 230, 675);
-  ctx.fillText(`Lv.${petLevel}`, 560, 675);
+  ctx.fillText(petName, 230, 678);
+  ctx.fillText(`Lv.${petLevel}`, 560, 678);
 
  // 배고픔
 const hunger = user.pet?.hunger ?? 100;
@@ -2468,7 +2513,7 @@ const filled = Math.floor(hunger / 10);
 
 // 위치 (요청한 좌표)
 const startX = 240;
-const startY = 765;
+const startY = 770;
 
 // 길쭉한 바 설정
 const barWidth = 320;
@@ -2575,7 +2620,20 @@ ctx.fillText(`${hunger}%`, startX + barWidth + 15, startY - 2);
   }
   }
 
-  ctx.fillText(optionText, 230, 870);
+  const lines = optionText.split("\n");
+
+const lineHeight = 35;
+const totalHeight = lines.length * lineHeight;
+
+const optionStartY = 895 - totalHeight / 2;
+
+lines.forEach((line, index) => {
+  ctx.fillText(
+    line,
+    230,
+    optionStartY + (index * lineHeight)
+  );
+});
 
   return canvas.toBuffer("image/png");
 }
@@ -3523,7 +3581,8 @@ weaponSellCollectors.delete(id);
           ephemeral: true
         });
       }
-
+      withdrawCooldowns[id] = Date.now();
+      saveWithdrawCooldowns();
       delete users[id];
       saveUsers();
 
@@ -6133,6 +6192,29 @@ if (
 
 /* ---------------- 가입 ---------------- */
 if (commandName === "가입") {
+  const withdrawAt = withdrawCooldowns[id];
+
+if (withdrawAt) {
+  const limit = 24 * 60 * 60 * 1000;
+  const remain = limit - (Date.now() - withdrawAt);
+
+  if (remain > 0) {
+    const hours = Math.floor(remain / (1000 * 60 * 60));
+    const minutes = Math.floor(
+      (remain % (1000 * 60 * 60)) / (1000 * 60)
+    );
+
+    return interaction.reply({
+      content:
+        `❌ **탈퇴 후 24시간이 지나야 재가입할 수 있다밍!**\n` +
+        `⏳ **남은 시간: ${hours}시간 ${minutes}분**`,
+      ephemeral: true
+    });
+  }
+
+  delete withdrawCooldowns[id];
+  saveWithdrawCooldowns();
+}
   if (users[id]) {
     return interaction.reply({
       content: "❌ **이미 가입한 유저다밍!**",
@@ -6451,6 +6533,27 @@ if (commandName === "출석체크") {
 
   return interaction.reply({
     embeds: [embed]
+  });
+}
+
+/* ---------------- 미닝세채널설정 ---------------- */
+if (commandName === "미닝세채널설정") {
+
+  if (!interaction.memberPermissions.has("Administrator")) {
+    return interaction.reply({
+      content: "❌ 관리자만 사용할 수 있다밍!",
+      ephemeral: true
+    });
+  }
+
+  const channel = interaction.options.getChannel("채널");
+
+  settings.miningTaxChannels[interaction.guild.id] = channel.id;
+
+  saveSettings();
+
+  return interaction.reply({
+    content: `✅ 미닝세 채널이 ${channel} 로 설정됐다밍!`
   });
 }
 
@@ -7697,19 +7800,19 @@ if (
         : "**레벨보너스: 없음**";
 
     const petBonusText =
-      petBonusAmount > 0
-        ? `**토토의 고유옵션 보너스: ${petBonusAmount.toLocaleString()}원**`
-        : "";
+  petBonusAmount > 0
+    ? `\n**토토의 고유옵션 보너스: ${petBonusAmount.toLocaleString()}원**`
+    : "";
 
-    const seolBonusText =
-      seolBonusAmount > 0
-        ? `**설이의 카페 보너스: ${seolBonusAmount.toLocaleString()}원**`
-        : "";
+const seolBonusText =
+  seolBonusAmount > 0
+    ? `\n**설이의 카페 보너스: ${seolBonusAmount.toLocaleString()}원**`
+    : "";
 
-    const seolExpText =
-      seolExpDouble
-        ? "**설이의 경험치 2배 효과가 발동했다밍!**"
-        : "";
+const seolExpText =
+  seolExpDouble
+    ? `\n**설이의 경험치 2배 효과가 발동했다밍!**`
+    : "";
 
     const expText =
       expChange === 0
@@ -7728,14 +7831,12 @@ if (
 
 ${result.message}
 
-${bonusText}
-${petBonusText}
-${seolBonusText}
-${seolExpText}
+${bonusText}${petBonusText}${seolBonusText}${seolExpText}
+
 **<:money:1489876006893518968> 잔액 : ${user.money.toLocaleString()}원 ${moneyText}**
 **${currentLevelEmoji} 카페 경험치: ${user.gatherExp} ${expText}**
 **남은횟수 : ${remainingCount}회**`
-      );
+);
 
     if (result.image) {
       embed.setImage(result.image);
