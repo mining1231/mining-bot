@@ -7747,9 +7747,10 @@ if (
       title = "카페 실패";
     }
 
-    if (
-  user.pet?.key === "white_tiger"
-  && Math.random() * 100 <
+  if (
+  user.pet?.key === "white_tiger" &&
+  user.seolType === "cafe" &&
+  Math.random() * 100 <
   (() => {
     const pet = getPetByKey("white_tiger");
 
