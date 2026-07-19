@@ -14,6 +14,10 @@ new SlashCommandBuilder()
   .setDescription("관리자 전용: 윷놀이 비활성화"),
 
   new SlashCommandBuilder()
+  .setName("도움말")
+  .setDescription("미닝봇 도움말과 주요 바로가기를 확인합니다."),
+
+  new SlashCommandBuilder()
     .setName("가입")
     .setDescription("게임에 가입합니다.")
     .toJSON(),
@@ -365,6 +369,8 @@ new SlashCommandBuilder()
         { name: "물음표박스", value: "questionBox" },
         { name: "송금 더블 쿠폰", value: "depositDoubleCoupon" },
         { name: "송금 랜덤 쿠폰", value: "randomTransferCoupon" },
+        { name: "송금 횟수 초기화 쿠폰", value: "transferResetCoupon" },
+        { name: "빚청산 쿠폰", value: "debtClearCoupon" },
         { name: "산삼조각", value: "wildGinsengPiece" },
         { name: "파산신청서", value: "bankruptcyPaper" },
         { name: "밍꾸러미", value: "mingBundle" },
@@ -418,6 +424,8 @@ new SlashCommandBuilder()
         { name: "물음표박스", value: "questionBox" },
         { name: "송금 더블 쿠폰", value: "depositDoubleCoupon" },
         { name: "송금 랜덤 쿠폰", value: "randomTransferCoupon" },
+        { name: "송금 횟수 초기화 쿠폰", value: "transferResetCoupon" },
+        { name: "빚청산 쿠폰", value: "debtClearCoupon" },
         { name: "산삼조각", value: "wildGinsengPiece" },
         { name: "파산신청서", value: "bankruptcyPaper" },
         { name: "밍꾸러미", value: "mingBundle" },

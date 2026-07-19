@@ -33,6 +33,18 @@ const itemData = {
   description: "사용 시 선택한 유저의 송금 횟수를 랜덤으로 증가시킵니다."
  },
 
+  transferResetCoupon: {
+  name: "송금 횟수 초기화 쿠폰",
+  emoji: "<:coupon3:1528443578475614339>",
+  description: "사용 시 선택한 유저의 송금 횟수를 기본 10회로 초기화합니다."
+},
+
+debtClearCoupon: {
+  name: "빚청산 쿠폰",
+  emoji: "<:coupon4:1528443647316463666>",
+  description: "사용 시 선택한 유저의 빚을 모두 청산하여 잔액을 0원으로 만듭니다."
+},
+
  wildGinsengPiece: {
   name: "산삼조각",
   emoji: "<:piece:1500337696525254658>",

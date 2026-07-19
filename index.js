@@ -437,6 +437,8 @@ const defaultUser = {
     questionBox: 0,
     depositDoubleCoupon: 0,
     randomTransferCoupon: 0,
+    transferResetCoupon: 0,
+    debtClearCoupon: 0,
     wildGinsengPiece: 0,
     petFood: 0,
     bankruptcyPaper: 0,
@@ -1052,6 +1054,29 @@ function saveCoupons() {
   writeJsonFile(COUPONS_FILE, coupons);
 }
 
+function cleanupExpiredCoupons() {
+  const now = Date.now();
+  let deletedCount = 0;
+
+  for (const [code, coupon] of Object.entries(coupons)) {
+    if (coupon?.expireAt && now >= coupon.expireAt) {
+      delete coupons[code];
+      deletedCount += 1;
+    }
+  }
+
+  if (deletedCount > 0) {
+    saveCoupons();
+    console.log(`만료된 쿠폰 ${deletedCount}개를 삭제했습니다.`);
+  }
+}
+
+// 봇 실행 시 기존 만료 쿠폰 즉시 정리
+cleanupExpiredCoupons();
+
+// 1분마다 만료 쿠폰 자동 정리
+setInterval(cleanupExpiredCoupons, 60 * 1000);
+
 function saveMarket() {
   writeJsonFile(MARKET_FILE, marketState);
 }
@@ -1663,6 +1688,8 @@ if (user.pet.optionChoice === undefined) user.pet.optionChoice = null;
   if (user.inventory.questionBox === undefined) user.inventory.questionBox = 0;
   if (user.inventory.depositDoubleCoupon === undefined) user.inventory.depositDoubleCoupon = 0;
   if (user.inventory.randomTransferCoupon === undefined) user.inventory.randomTransferCoupon = 0;
+  if (user.inventory.transferResetCoupon === undefined) user.inventory.transferResetCoupon = 0;
+  if (user.inventory.debtClearCoupon === undefined) user.inventory.debtClearCoupon = 0;
 
   if (user.inventory.wildGinsengPiece === undefined) {
   user.inventory.wildGinsengPiece = 0;
@@ -1822,6 +1849,22 @@ function getBagItemMeta() {
         "사용 시 선택한 유저의 송금 횟수를 랜덤으로 증가시킵니다."
     },
 
+    transferResetCoupon: {
+       label: itemData?.transferResetCoupon?.name || "송금 횟수 초기화 쿠폰",
+       emoji: itemData?.transferResetCoupon?.emoji || "<:coupon3:1528443578475614339>",
+       description:
+         itemData?.transferResetCoupon?.description ||
+         "사용 시 선택한 유저의 송금 횟수를 기본 10회로 초기화합니다."
+    },
+
+    debtClearCoupon: {
+      label: itemData?.debtClearCoupon?.name || "빚청산 쿠폰",
+      emoji:itemData?.debtClearCoupon?.emoji || "<:coupon4:1528443647316463666>",
+      description:
+       itemData?.debtClearCoupon?.description ||
+       "사용 시 선택한 유저의 빚을 모두 청산하여 잔액을 0원으로 만듭니다."
+    },
+
     wildGinsengPiece: {
       label: itemData?.wildGinsengPiece?.name || "산삼조각",
       emoji: itemData?.wildGinsengPiece?.emoji || "<:piece:1500337696525254658>",
@@ -1915,11 +1958,11 @@ async function applyMiningTax() {
       user.money -= tax;
 
       over10B.push({
-        name: await getTaxUserName(userId),
-        beforeMoney,
-        tax,
-        afterMoney: user.money
-      });
+       userId,
+       beforeMoney,
+       tax,
+       afterMoney: user.money
+     });
     }
 
     else if (user.money >= 100000000) {
@@ -1928,12 +1971,12 @@ async function applyMiningTax() {
 
       user.money -= tax;
 
-      over100M.push({
-        name: await getTaxUserName(userId),
-        beforeMoney,
-        tax,
-        afterMoney: user.money
-      });
+     over100M.push({
+      userId,
+      beforeMoney,
+      tax,
+      afterMoney: user.money
+     });
     }
   }
 
@@ -1953,10 +1996,10 @@ function formatTaxUserList(list) {
 
   let text = showList
     .map((item, index) => {
-      return `${index + 1}. ${item.name}
+      return `${index + 1}.<@${item.userId}>
 잔액: ${item.afterMoney.toLocaleString()}원 (-${item.tax.toLocaleString()}원)`;
     })
-    .join("\n\n");
+    .join("\n");
 
   if (list.length >= 10) {
     text += `
@@ -2044,7 +2087,7 @@ const lottoResults = [
   {
     name: "**1등 당첨**",
     multiplier: 5,
-    chance: 3.2,
+    chance: 1.5,
     type: "win",
     effect:"배팅한 금액의 5배를 얻습니다.",
     message:
@@ -2074,7 +2117,7 @@ const lottoResults = [
   {
     name: "**4등 당첨**",
     multiplier: 0,
-    chance: 8,
+    chance: 8.7,
     type: "draw",
     effect: "아무 일도 일어나지 않았습니다.",
     message:
@@ -2084,7 +2127,7 @@ const lottoResults = [
   {
     name: "**낙첨**",
     multiplier: -1,
-    chance: 29,
+    chance: 30,
     type: "lose",
     effect: "배팅한 금액만큼 잃습니다.",
     message:
@@ -2132,7 +2175,7 @@ const fishingResults = [
   {
     name: "**낚시 실패**",
     multiplier: -5,
-    chance: 4.5,
+    chance: 5,
     type: "lose",
     effect: "배팅한 금액의 5배를 잃습니다.",
     image: "./assets/fishing/fail1.png",
@@ -2150,7 +2193,7 @@ const fishingResults = [
   {
     name: "**낚시 실패**",
     multiplier: -1,
-    chance: 25,
+    chance: 29,
     type: "lose",
     effect: "배팅한 금액만큼 잃습니다.",
     image: "./assets/fishing/fail3.png",
@@ -2159,7 +2202,7 @@ const fishingResults = [
   {
     name: "**낚시 성공**",
     multiplier: 1,
-    chance: 24,
+    chance: 25,
     type: "win",
     effect: "배팅한 금액만큼 얻습니다.",
     image: "./assets/fishing/success1.png",
@@ -2168,7 +2211,7 @@ const fishingResults = [
   {
     name: "**낚시 성공**",
     multiplier: 2,
-    chance: 18,
+    chance: 15,
     type: "win",
     effect: "배팅한 금액의 2배를 얻습니다.",
     image: "./assets/fishing/success2.png",
@@ -2177,7 +2220,7 @@ const fishingResults = [
   {
     name: "**낚시 성공**",
     multiplier: 3,
-    chance: 6.5,
+    chance: 5,
     type: "win",
     effect: "배팅한 금액의 3배를 얻습니다.",
     image: "./assets/fishing/success3.png",
@@ -2186,7 +2229,7 @@ const fishingResults = [
   {
     name: "**낚시 성공**",
     multiplier: 5,
-    chance: 2.95,
+    chance: 1.95,
     type: "win",
     effect: "배팅한 금액의 5배를 얻습니다.",
     image: "./assets/fishing/success4.png",
@@ -3066,13 +3109,13 @@ async function buildMoneyRankingCache() {
     if (i === 0) rankLabel = "🥇";
     else if (i === 1) rankLabel = "🥈";
     else if (i === 2) rankLabel = "🥉";
-    else rankLabel = `${i + 1}.`;
+    else rankLabel = `${i + 1}\\.`;
 
     if (i === 0 && avatarURL) {
       firstPlaceAvatar = avatarURL;
     }
 
-    rankText += `${rankLabel} ${username}
+    rankText += `**${rankLabel}${username}**
 ${(data.money || 0).toLocaleString()}원
 
 `;
@@ -3119,7 +3162,7 @@ async function buildWeaponRankingCache() {
     if (i === 0) rankLabel = "🥇";
     else if (i === 1) rankLabel = "🥈";
     else if (i === 2) rankLabel = "🥉";
-    else rankLabel = `${i + 1}.`;
+    else rankLabel = `${i + 1}\\.`;
 
     if (i === 0 && avatarURL) {
       firstPlaceAvatar = avatarURL;
@@ -3128,7 +3171,7 @@ async function buildWeaponRankingCache() {
     const weaponLevel = data.level || 1;
     const weaponData = gameData.weapons["Lv" + weaponLevel];
 
-    rankText += `${rankLabel} ${username}
+    rankText += `**${rankLabel}${username}**
 Lv${weaponLevel} 「${weaponData?.name || "알 수 없음"}」
 
 `;
@@ -3175,7 +3218,7 @@ async function buildEngraveRankingCache() {
     if (i === 0) rankLabel = "🥇";
     else if (i === 1) rankLabel = "🥈";
     else if (i === 2) rankLabel = "🥉";
-    else rankLabel = `${i + 1}.`;
+    else rankLabel = `${i + 1}\\.`;
 
     if (i === 0 && avatarURL) {
       firstPlaceAvatar = avatarURL;
@@ -3184,7 +3227,7 @@ async function buildEngraveRankingCache() {
     const engraveLevel = data.engraveLevel || 0;
     const starText = getEngraveStars(engraveLevel) || "각인 없음";
 
-    rankText += `${rankLabel} ${username}
+    rankText += `**${rankLabel}${username}**
 ${starText}
 
 `;
@@ -3264,12 +3307,15 @@ if (interaction.isModalSubmit() && interaction.customId === "coupon_use_modal") 
     });
   }
 
-  if (coupon.expireAt && Date.now() > coupon.expireAt) {
-    return interaction.reply({
-      content: "❌ 만료된 쿠폰입니다.",
-      ephemeral: true
-    });
-  }
+  if (coupon.expireAt && Date.now() >= coupon.expireAt) {
+  delete coupons[code];
+  saveCoupons();
+
+  return interaction.reply({
+    content: "❌ 만료된 쿠폰입니다.",
+    ephemeral: true
+  });
+}
 
   if (coupon.usedCount >= coupon.maxUse) {
     return interaction.reply({
@@ -3291,6 +3337,8 @@ if (interaction.isModalSubmit() && interaction.customId === "coupon_use_modal") 
     questionBox: { name: "물음표박스", emoji: "<:box:1492879878838816849>" },
     depositDoubleCoupon: { name: "송금 더블 쿠폰", emoji: "<:coupon:1496892441213665492>" },
     randomTransferCoupon: { name: "송금 랜덤 쿠폰", emoji: "<:coupon2:1497620249766268938>" },
+    transferResetCoupon: { name: "송금 횟수 초기화 쿠폰", emoji: "<:coupon3:1528443578475614339>" },
+    debtClearCoupon: { name: "빚청산 쿠폰", emoji: "<:coupon4:1528443647316463666>" },
     wildGinsengPiece: { name: "산삼조각", emoji: "<:piece:1500337696525254658>" },
     bankruptcyPaper: { name: "파산신청서", emoji: "📜" },
     mingBundle: { name: "밍꾸러미", emoji: "<:mingbox:1504908502609432668>" },
@@ -5224,6 +5272,62 @@ if (selectedKey === "randomTransferCoupon") {
   });
 }
 
+// 🔄 송금 횟수 초기화 쿠폰
+if (selectedKey === "transferResetCoupon") {
+  const select = new UserSelectMenuBuilder()
+    .setCustomId("use_transferResetCoupon")
+    .setPlaceholder("쿠폰을 사용할 유저를 선택해달라밍!")
+    .setMinValues(1)
+    .setMaxValues(1);
+
+  return interaction.reply({
+    embeds: [
+      new EmbedBuilder()
+        .setColor("#8B5CF6")
+        .setTitle("<:coupon3:1528443578475614339> **송금 횟수 초기화 쿠폰 사용**")
+        .setDescription(
+`**선택한 유저의 송금 횟수를 기본 10회로 초기화하는 쿠폰이다밍!
+
+남은 송금 횟수가 9회 이하일 때만 사용할 수 있다밍!
+⚠️ 유저를 고르면 바로 적용되니까 신중하게 선택해야 한다밍!!**
+
+<:coupon3:1528443578475614339>: ${amount}개`
+        )
+    ],
+    components: [new ActionRowBuilder().addComponents(select)],
+    ephemeral: true
+  });
+}
+
+// 💸 빚청산 쿠폰
+if (selectedKey === "debtClearCoupon") {
+  const select = new UserSelectMenuBuilder()
+    .setCustomId("use_debtClearCoupon")
+    .setPlaceholder("빚을 청산할 유저를 선택해달라밍!")
+    .setMinValues(1)
+    .setMaxValues(1);
+
+  return interaction.reply({
+    embeds: [
+      new EmbedBuilder()
+        .setColor("#EF4444")
+        .setTitle(
+          "<:coupon4:1528443647316463666> **빚청산 쿠폰 사용**"
+        )
+        .setDescription(
+`**선택한 유저의 빚을 모두 청산하여 잔액을 0원으로 만드는 쿠폰이다밍!
+
+잔액이 음수인 유저에게만 사용할 수 있다밍!
+⚠️ 유저를 고르면 바로 적용되니까 신중하게 선택해야 한다밍!!**
+
+<:coupon4:1528443647316463666>: ${amount}개`
+        )
+    ],
+    components: [new ActionRowBuilder().addComponents(select)],
+    ephemeral: true
+  });
+}
+
  // 📦 물음표박스
 if (selectedKey === "questionBox") {
   const openButton = new ButtonBuilder()
@@ -5724,12 +5828,12 @@ ${pet.summonText}
 if (selected === "premium_pet_gacha") {
 
   // 🔥 농사 Lv4 + 카페 Lv4 이상
-  if (user.farmLevel < 4 || user.cafeLevel < 4) {
-    return interaction.reply({
-      content: "**농사 Lv.4, 카페 Lv.4 이상부터 고급뽑기가 가능하다밍!**",
-      ephemeral: true
-    });
-  }
+ if (user.farmLevel < 4 || user.gatherLevel < 4) {
+  return interaction.reply({
+    content: "**농사 Lv.4, 카페 Lv.4 이상부터 고급뽑기가 가능하다밍!**",
+    flags: 64
+  });
+}
 
   const price = 250000000;
 
@@ -5889,13 +5993,13 @@ if (
 
   if (selected === "pet_food_50") {
     amount = 50;
-    price = 230000000;
+    price = 250000000;
     label = "펫먹이 50개 묶음";
   }
 
   if (selected === "pet_food_100") {
     amount = 100;
-    price = 470000000;
+    price = 500000000;
     label = "펫먹이 100개 묶음";
   }
 
@@ -6145,6 +6249,112 @@ if (interaction.customId === "use_randomTransferCoupon") {
     allowedMentions: { parse: [] }
   });
 }
+
+// =========================
+// 🔄 송금 횟수 초기화 쿠폰
+// =========================
+if (interaction.customId === "use_transferResetCoupon") {
+
+  if (
+    !user.inventory.transferResetCoupon ||
+    user.inventory.transferResetCoupon <= 0
+  ) {
+    return interaction.followUp({
+      content: "❌ **보유한 송금 횟수 초기화 쿠폰이 없다밍!!!**",
+      ephemeral: true
+    });
+  }
+
+  resetDailyTransferLimit(target);
+
+  const remaining =
+    target.transfer.maxCount - target.transfer.usedCount;
+
+  if (remaining >= 10) {
+    return interaction.followUp({
+      content:
+        "❌ **송금 횟수 초기화 쿠폰은 남은 송금 횟수가 9회 이하일 때만 사용할 수 있다밍!**",
+      ephemeral: true
+    });
+  }
+
+  user.inventory.transferResetCoupon -= 1;
+
+  target.transfer.usedCount = 0;
+  target.transfer.maxCount = 10;
+
+  saveUsers();
+
+  const couponEmbed = new EmbedBuilder()
+    .setColor("#8B5CF6")
+    .setTitle("<:coupon3:1528443578475614339> 송금 횟수 초기화 쿠폰 사용")
+    .setDescription(
+`**<@${interaction.user.id}>님이 <@${targetId}>님에게 송금 횟수 초기화 쿠폰을 사용했다밍!**
+
+**<@${targetId}>님의 송금 횟수가 기본 10회로 초기화되었다밍!**
+
+<:coupon3:1528443578475614339>: ${user.inventory.transferResetCoupon}개`
+    );
+
+  return interaction.followUp({
+    embeds: [couponEmbed],
+    allowedMentions: { parse: [] }
+  });
+}
+
+// =========================
+// 💸 빚청산 쿠폰
+// =========================
+if (interaction.customId === "use_debtClearCoupon") {
+
+  if (
+    !user.inventory.debtClearCoupon ||
+    user.inventory.debtClearCoupon <= 0
+  ) {
+    return interaction.followUp({
+      content: "❌ **보유한 빚청산 쿠폰이 없다밍!!!**",
+      ephemeral: true
+    });
+  }
+
+  // 잔액이 0원 이상이면 사용 불가
+  if (target.money >= 0) {
+    return interaction.followUp({
+      content:
+        "❌ **빚청산 쿠폰은 잔액이 음수인 유저에게만 사용할 수 있다밍!**",
+      ephemeral: true
+    });
+  }
+
+  const clearedDebt = Math.abs(target.money);
+
+  // 성공했을 때만 쿠폰 차감
+  user.inventory.debtClearCoupon -= 1;
+
+  // 빚 청산
+  target.money = 0;
+
+  saveUsers();
+
+  const couponEmbed = new EmbedBuilder()
+    .setColor("#EF4444")
+    .setTitle(
+      "<:coupon4:1528443647316463666> 빚청산 쿠폰 사용")
+    .setDescription(
+`**<@${interaction.user.id}>님이 <@${targetId}>님에게 빚청산 쿠폰을 사용했다밍!**
+
+**청산된 빚: ${clearedDebt.toLocaleString()}원**
+**<@${targetId}>님의 잔액이 0원으로 변경되었다밍!**
+
+<:coupon4:1528443647316463666>: ${user.inventory.debtClearCoupon}개`
+    );
+
+  return interaction.followUp({
+    embeds: [couponEmbed],
+    allowedMentions: { parse: [] }
+  });
+}
+
 }
 /* ---------------- 슬래시 명령어 ---------------- */
 if (!interaction.isChatInputCommand()) return;
@@ -6170,6 +6380,7 @@ const id = interaction.user.id;
 const noJoinRequiredCommands = [
   "가입",
   "탈퇴",
+  "도움말",
   "쿠폰생성",
   "돈지급",
   "돈초기화",
@@ -6187,6 +6398,62 @@ if (
   return interaction.reply({
     content: "**먼저 `/가입`을 해야 명령어를 사용할 수 있다밍!**",
     ephemeral: true
+  });
+}
+
+/* ---------------- 도움말 ---------------- */
+if (commandName === "도움말") {
+  const supportUrl = "https://discord.gg/kjKk8q7dDN";
+  const homepageUrl = "https://miningbot-web.netlify.app/";
+  const tutorialUrl = "https://discord.gg/HKFwAtNEtT";
+
+  const embed = new EmbedBuilder()
+    .setColor("#F9A8D4")
+    .setTitle("<:sheep:1502713987354198177>도움말")
+    .setDescription(
+`미닝봇 이용에 필요한 주요 정보를 확인해 보세요!
+
+🏠 **홈페이지**
+미닝봇의 명령어와 시스템 정보를 자세히 확인할 수 있다밍!
+
+📖 **튜토리얼**
+처음 시작하는 유저를 위한 이용 방법을 확인할 수 있다밍!
+
+💬 **서포트 서버**
+문의사항이나 오류가 있다면 서포트 서버를 이용해달라밍!
+
+🎮 **주요 명령어**
+• \`/정보\`
+• \`/농사\`
+• \`/카페\`
+• \`/탐험\`
+• \`/가방\`
+• \`/순위\``
+    );
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel("서포트 서버")
+      .setEmoji("💬")
+      .setStyle(ButtonStyle.Link)
+      .setURL(supportUrl),
+
+    new ButtonBuilder()
+      .setLabel("미닝 홈페이지")
+      .setEmoji("🏠")
+      .setStyle(ButtonStyle.Link)
+      .setURL(homepageUrl),
+
+    new ButtonBuilder()
+      .setLabel("튜토리얼")
+      .setEmoji("📖")
+      .setStyle(ButtonStyle.Link)
+      .setURL(tutorialUrl)
+  );
+
+  return interaction.reply({
+    embeds: [embed],
+    components: [row]
   });
 }
 
@@ -9242,6 +9509,8 @@ if (commandName === "아이템지급") {
     questionBox: "물음표박스",
     depositDoubleCoupon: "송금 더블 쿠폰",
     randomTransferCoupon: "송금 랜덤 쿠폰",
+    transferResetCoupon: "송금 횟수 초기화 쿠폰",
+    debtClearCoupon: "빚청산 쿠폰",
     wildGinsengPiece: "산삼조각",
     bankruptcyPaper: "파산신청서",
     mingBundle: "밍꾸러미",
@@ -9445,6 +9714,8 @@ if (commandName === "가방확인") {
 
 <:coupon:1496892441213665492> 송금 더블 쿠폰: ${inv.depositDoubleCoupon || 0}개
 <:coupon2:1497620249766268938> 송금 랜덤 쿠폰: ${inv.randomTransferCoupon || 0}개
+<:coupon3:1528443578475614339> 송금 횟수 초기화 쿠폰: ${inv.transferResetCoupon || 0}개
+<:coupon4:1528443647316463666> 빚청산 쿠폰: ${inv.debtClearCoupon || 0}개
 <:piece:1500337696525254658> 산삼조각: ${inv.wildGinsengPiece || 0}개`
     );
 
@@ -9477,12 +9748,15 @@ if (commandName === "쿠폰생성") {
     });
   }
 
-  if (coupons[code]) {
-    return interaction.reply({
-      content: "❌ 이미 존재하는 쿠폰 코드입니다.",
-      ephemeral: true
-    });
-  }
+  // 생성 전에 만료된 쿠폰 데이터 정리
+cleanupExpiredCoupons();
+
+if (coupons[code]) {
+  return interaction.reply({
+    content: "❌ 아직 유효기간이 남아 있는 쿠폰 코드입니다.",
+    ephemeral: true
+  });
+}
 
   const itemMap = {
     repairStone: "수리석",
@@ -9490,6 +9764,8 @@ if (commandName === "쿠폰생성") {
     questionBox: "물음표박스",
     depositDoubleCoupon: "송금 더블 쿠폰",
     randomTransferCoupon: "송금 랜덤 쿠폰",
+    transferResetCoupon: "송금 횟수 초기화 쿠폰",
+    debtClearCoupon: "빚청산 쿠폰",
     wildGinsengPiece: "산삼조각",
     bankruptcyPaper: "파산신청서",
     mingBundle: "밍꾸러미",
