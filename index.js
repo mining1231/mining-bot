@@ -369,6 +369,8 @@ const upgradeCollectors = new Map();
 const engraveCollectors = new Map();
 const weaponSellCollectors = new Map();
 
+const diceGames = new Map();
+
 const processingInteractions = new Set();
 const upgradeProcessingUsers = new Set();
 const engraveProcessingUsers = new Set();
@@ -728,6 +730,65 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/* ================= 주사위 대결 함수 ================= */
+
+// 일정 시간 기다리기
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// 주사위 3개 굴리기
+function rollDiceSet() {
+  return [
+    getRandomInt(1, 6),
+    getRandomInt(1, 6),
+    getRandomInt(1, 6)
+  ];
+}
+
+// 주사위 총합 계산
+function getDiceTotal(dice) {
+  return dice.reduce((total, number) => total + number, 0);
+}
+
+// 승리 40% / 패배 40% / 무승부 20%
+function getDiceResultType() {
+  const rand = Math.random() * 100;
+
+  if (rand < 40) return "win";
+  if (rand < 80) return "lose";
+
+  return "draw";
+}
+
+// 정해진 결과에 맞는 주사위 생성
+function createDiceBattleResult(resultType) {
+  let userDice;
+  let botDice;
+  let userTotal;
+  let botTotal;
+
+  while (true) {
+    userDice = rollDiceSet();
+    botDice = rollDiceSet();
+
+    userTotal = getDiceTotal(userDice);
+    botTotal = getDiceTotal(botDice);
+
+    if (resultType === "win" && userTotal > botTotal) break;
+    if (resultType === "lose" && userTotal < botTotal) break;
+    if (resultType === "draw" && userTotal === botTotal) break;
+  }
+
+  return {
+    resultType,
+    userDice,
+    botDice,
+    userTotal,
+    botTotal
+  };
+}
+
 function getRepairAmount() {
   const rand = Math.random() * 100;
 
@@ -837,8 +898,11 @@ function saveSettings() {
 function openQuestionBox() {
   const rand = Math.random() * 100;
 
+  // 💰 돈 42%
   if (rand < 42) {
-    const money = Math.floor(Math.random() * (6500000 - 5000000 + 1)) + 5000000;
+    const money =
+      Math.floor(Math.random() * (6500000 - 5000000 + 1)) + 5000000;
+
     return {
       type: "money",
       value: money,
@@ -846,7 +910,8 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 44) {
+  // 🔧 수리석 4%
+  if (rand < 46) {
     return {
       type: "repair",
       value: 1,
@@ -854,7 +919,8 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 54) {
+  // 📦 빈 상자 10%
+  if (rand < 56) {
     return {
       type: "empty",
       value: 0,
@@ -862,17 +928,11 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 67) {
-    const peach = Math.floor(Math.random() * (5500 - 4000 + 1)) + 4000;
-    return {
-      type: "peach",
-      value: peach,
-      text: `🍑 복숭아 ${peach.toLocaleString()}개를 획득했다밍!`
-    };
-  }
+  // 🍓 딸기 15%
+  if (rand < 71) {
+    const strawberry =
+      Math.floor(Math.random() * (200 - 100 + 1)) + 100;
 
-  if (rand < 80) {
-    const strawberry = Math.floor(Math.random() * (200 - 100 + 1)) + 100;
     return {
       type: "strawberry",
       value: strawberry,
@@ -880,8 +940,10 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 88) {
+  // 🍇 샤인머스켓 8%
+  if (rand < 79) {
     const shine = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
+
     return {
       type: "shineMuscat",
       value: shine,
@@ -889,7 +951,8 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 89) {
+  // 🍎 사과 1%
+  if (rand < 80) {
     return {
       type: "apple",
       value: 1,
@@ -897,8 +960,10 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 93.5) {
+  // 🌱 농사 경험치 5%
+  if (rand < 85) {
     const exp = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+
     return {
       type: "farmExp",
       value: exp,
@@ -906,8 +971,10 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 98) {
+  // ☕ 카페 경험치 5%
+  if (rand < 90) {
     const exp = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+
     return {
       type: "gatherExp",
       value: exp,
@@ -915,7 +982,8 @@ function openQuestionBox() {
     };
   }
 
-  if (rand < 99) {
+  // 🎲 송금 랜덤 쿠폰 2%
+  if (rand < 92) {
     return {
       type: "randomTransferCoupon",
       value: 1,
@@ -923,18 +991,39 @@ function openQuestionBox() {
     };
   }
 
+  // ✖️ 송금 더블 쿠폰 2%
+  if (rand < 94) {
+    return {
+      type: "depositDoubleCoupon",
+      value: 1,
+      text: "<:coupon:1496892441213665492> 송금 더블 쿠폰 1개를 획득했다밍!"
+    };
+  }
+
+  // 🔄 송금 횟수 초기화 쿠폰 2%
+  if (rand < 96) {
+    return {
+      type: "transferResetCoupon",
+      value: 1,
+      text: "<:coupon3:1528443578475614339> 송금 횟수 초기화 쿠폰 1개를 획득했다밍!"
+    };
+  }
+
+  // 💸 빚청산 쿠폰 4%
   return {
-    type: "depositDoubleCoupon",
+    type: "debtClearCoupon",
     value: 1,
-    text: "<:coupon:1496892441213665492> 송금 더블 쿠폰 1개를 획득했다밍!"
+    text: "<:coupon4:1528443647316463666> 빚청산 쿠폰 1개를 획득했다밍!"
   };
 }
 
 function openMingBundle() {
   const rand = Math.random() * 100;
 
+  // 💰 돈 27%
   if (rand < 27) {
-    const money = Math.floor(Math.random() * (1000000 - 100000 + 1)) + 100000;
+    const money =
+      Math.floor(Math.random() * (1000000 - 100000 + 1)) + 100000;
 
     return {
       type: "money",
@@ -943,8 +1032,10 @@ function openMingBundle() {
     };
   }
 
+  // 🍑 복숭아 25%
   if (rand < 52) {
-    const peach = Math.floor(Math.random() * (2500 - 1000 + 1)) + 1000;
+    const peach =
+      Math.floor(Math.random() * (2500 - 1000 + 1)) + 1000;
 
     return {
       type: "peach",
@@ -953,8 +1044,10 @@ function openMingBundle() {
     };
   }
 
-  if (rand < 72) {
-    const strawberry = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+  // 🍓 딸기 22%
+  if (rand < 74) {
+    const strawberry =
+      Math.floor(Math.random() * (100 - 50 + 1)) + 50;
 
     return {
       type: "strawberry",
@@ -963,15 +1056,17 @@ function openMingBundle() {
     };
   }
 
-  if (rand < 81) {
+  // 🍇 샤인머스켓 9%
+  if (rand < 83) {
     return {
       type: "shineMuscat",
       value: 1,
-      text: `<:grape:1489872445555867759> 샤인머스켓 1개를 획득했다밍!`
+      text: "<:grape:1489872445555867759> 샤인머스켓 1개를 획득했다밍!"
     };
   }
 
-  if (rand < 82) {
+  // 🍎 사과 1%
+  if (rand < 84) {
     return {
       type: "apple",
       value: 1,
@@ -979,7 +1074,8 @@ function openMingBundle() {
     };
   }
 
-  if (rand < 83) {
+  // 🔧 수리석 1%
+  if (rand < 85) {
     return {
       type: "repairStone",
       value: 1,
@@ -987,7 +1083,8 @@ function openMingBundle() {
     };
   }
 
-  if (rand < 93) {
+  // 📜 파산신청서 10%
+  if (rand < 95) {
     return {
       type: "bankruptcyPaper",
       value: 2,
@@ -995,7 +1092,8 @@ function openMingBundle() {
     };
   }
 
-  if (rand < 94) {
+  // 🎲 송금 랜덤 쿠폰 1%
+  if (rand < 96) {
     return {
       type: "randomTransferCoupon",
       value: 1,
@@ -1003,7 +1101,8 @@ function openMingBundle() {
     };
   }
 
-  if (rand < 95) {
+  // ✖️ 송금 더블 쿠폰 1%
+  if (rand < 97) {
     return {
       type: "depositDoubleCoupon",
       value: 1,
@@ -1011,10 +1110,20 @@ function openMingBundle() {
     };
   }
 
+  // 🔄 송금 횟수 초기화 쿠폰 1%
+  if (rand < 98) {
+    return {
+      type: "transferResetCoupon",
+      value: 1,
+      text: "<:coupon3:1528443578475614339> 송금 횟수 초기화 쿠폰 1개를 획득했다밍!"
+    };
+  }
+
+  // 💸 빚청산 쿠폰 2%
   return {
-    type: "petFood",
+    type: "debtClearCoupon",
     value: 1,
-    text: "<:food:1501244821983989831> 펫먹이 1개를 획득했다밍!"
+    text: "<:coupon4:1528443647316463666> 빚청산 쿠폰 1개를 획득했다밍!"
   };
 }
 
@@ -3447,13 +3556,13 @@ if (interaction.isButton()) {
     (hour === 23 && minute >= 50) ||
     (hour === 0 && minute < 10);
 
-  if (isMaintenance) {
-    return interaction.reply({
-      content:
-        "**현재 미닝세 정산 및 점검이 진행 중이다밍! 00:10분 이후에 다시 이용해달라밍!**",
-      ephemeral: true
-    });
-  }
+if (isMaintenance && !isAdmin(interaction.user.id)) {
+  return interaction.reply({
+    content:
+      "**현재 미닝세 정산 및 점검이 진행 중이다밍! 00:10분 이후에 다시 이용해달라밍!**",
+    ephemeral: true
+  });
+}
 
   const ownerId = interaction.message.interaction?.user?.id;
   const yutButtonIds = ["yut_accept", "yut_decline", "yut_roll", "yut_piece_0", "yut_piece_1"];
@@ -3675,7 +3784,6 @@ if (interaction.customId.startsWith("open_questionBox_")) {
   // 보상 지급
   if (result.type === "money") user.money += result.value;
   if (result.type === "repair") user.inventory.repairStone += result.value;
-  if (result.type === "peach") user.farmCrops.peach += result.value;
   if (result.type === "strawberry") user.farmCrops.strawberry += result.value;
   if (result.type === "shineMuscat") user.farmCrops.shineMuscat += result.value;
   if (result.type === "apple") user.farmCrops.apple += result.value;
@@ -3683,6 +3791,8 @@ if (interaction.customId.startsWith("open_questionBox_")) {
   if (result.type === "gatherExp") user.gatherExp += result.value;
   if (result.type === "randomTransferCoupon") user.inventory.randomTransferCoupon += result.value;
   if (result.type === "depositDoubleCoupon") user.inventory.depositDoubleCoupon += result.value;
+  if (result.type === "transferResetCoupon") user.inventory.transferResetCoupon += result.value;
+  if (result.type === "debtClearCoupon") user.inventory.debtClearCoupon += result.value;
 
   let rewardStatusText = "";
 
@@ -3692,10 +3802,6 @@ if (result.type === "money") {
 
 if (result.type === "repair") {
   rewardStatusText = `<:repair:1489875654886297640> ${user.inventory.repairStone.toLocaleString()}개 (+${result.value.toLocaleString()}개)`;
-}
-
-if (result.type === "peach") {
-  rewardStatusText = `🍑 ${user.farmCrops.peach.toLocaleString()}개 (+${result.value.toLocaleString()}개)`;
 }
 
 if (result.type === "strawberry") {
@@ -3724,6 +3830,14 @@ if (result.type === "randomTransferCoupon") {
 
 if (result.type === "depositDoubleCoupon") {
   rewardStatusText = `<:coupon:1496892441213665492> ${user.inventory.depositDoubleCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)`;
+}
+
+if (result.type === "transferResetCoupon") {
+  rewardStatusText = `<:coupon3:1528443578475614339> ${user.inventory.transferResetCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)`;
+}
+
+if (result.type === "debtClearCoupon") {
+  rewardStatusText = `<:coupon4:1528443647316463666> ${user.inventory.debtClearCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)`;
 }
 
   saveUsers();
@@ -3782,7 +3896,8 @@ if (interaction.customId.startsWith("open_mingBundle_")) {
   if (result.type === "bankruptcyPaper") user.inventory.bankruptcyPaper += result.value;
   if (result.type === "randomTransferCoupon") user.inventory.randomTransferCoupon += result.value;
   if (result.type === "depositDoubleCoupon") user.inventory.depositDoubleCoupon += result.value;
-  if (result.type === "petFood") user.inventory.petFood += result.value;
+  if (result.type === "transferResetCoupon") user.inventory.transferResetCoupon += result.value;
+  if (result.type === "debtClearCoupon") user.inventory.debtClearCoupon += result.value;
 
   let resultDetail = "";
 
@@ -3822,8 +3937,12 @@ if (result.type === "depositDoubleCoupon") {
   resultDetail = `<:coupon:1496892441213665492> **송금 더블 쿠폰: ${user.inventory.depositDoubleCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
-if (result.type === "petFood") {
-  resultDetail = `<:food:1501244821983989831> **펫먹이: ${user.inventory.petFood.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+if (result.type === "transferResetCoupon") {
+  resultDetail = `<:coupon3:1528443578475614339> **송금 횟수 초기화 쿠폰: ${user.inventory.transferResetCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+}
+
+if (result.type === "debtClearCoupon") {
+  resultDetail = `<:coupon4:1528443647316463666> **빚청산 쿠폰: ${user.inventory.debtClearCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
 }
 
   saveUsers();
@@ -3868,31 +3987,47 @@ function openMiningBox() {
     };
   }
 
-  // 🍎 사과 18%
-  if (rand < 46) {
+  // 🍎 사과 12%
+  if (rand < 40) {
     return {
       type: "apple",
-      value: 4
+      value: 3
     };
   }
 
-  // 🎟️ 송금 랜덤 쿠폰 18%
-  if (rand < 64) {
+  // 🎟️ 송금 랜덤 쿠폰 12%
+  if (rand < 52) {
     return {
       type: "randomTransferCoupon",
       value: 2
     };
   }
 
-  // 🎟️ 송금 더블 쿠폰 18%
-  if (rand < 82) {
+  // 🎟️ 송금 더블 쿠폰 12%
+  if (rand < 64) {
     return {
       type: "depositDoubleCoupon",
       value: 2
     };
   }
 
-  // 🔧 수리석 18%
+  // 🔄 송금 횟수 초기화 쿠폰 12%
+  if (rand < 76) {
+    return {
+      type: "transferResetCoupon",
+      value: 2
+    };
+  }
+
+  // 💸 빚청산 쿠폰 12%
+  if (rand < 88) {
+    return {
+      type: "debtClearCoupon",
+      value: 2
+    };
+  }
+
+  // 🔧 수리석 12%
   return {
     type: "repairStone",
     value: 2
@@ -3928,6 +4063,8 @@ if (interaction.customId.startsWith("open_miningBox_")) {
   if (result.type === "apple") user.farmCrops.apple += result.value;
   if (result.type === "randomTransferCoupon") user.inventory.randomTransferCoupon += result.value;
   if (result.type === "depositDoubleCoupon") user.inventory.depositDoubleCoupon += result.value;
+  if (result.type === "transferResetCoupon") user.inventory.transferResetCoupon += result.value;
+  if (result.type === "debtClearCoupon") user.inventory.debtClearCoupon += result.value;
   if (result.type === "repairStone") user.inventory.repairStone += result.value;
 
   let resultText = "";
@@ -3956,6 +4093,16 @@ if (interaction.customId.startsWith("open_miningBox_")) {
   if (result.type === "depositDoubleCoupon") {
     resultText = `<:coupon:1496892441213665492> **송금 더블 쿠폰 ${result.value.toLocaleString()}개를 획득했다밍!**`;
     resultDetail = `<:coupon:1496892441213665492> **송금 더블 쿠폰: ${user.inventory.depositDoubleCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+  }
+
+  if (result.type === "transferResetCoupon") {
+    resultText = `<:coupon3:1528443578475614339> **송금 횟수 초기화 쿠폰 ${result.value.toLocaleString()}개를 획득했다밍!**`;
+    resultDetail = `<:coupon3:1528443578475614339> **송금 횟수 초기화 쿠폰: ${user.inventory.transferResetCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
+  }
+
+  if (result.type === "debtClearCoupon") {
+    resultText = `<:coupon4:1528443647316463666> **빚청산 쿠폰 ${result.value.toLocaleString()}개를 획득했다밍!**`;
+    resultDetail = `<:coupon4:1528443647316463666> **빚청산 쿠폰: ${user.inventory.debtClearCoupon.toLocaleString()}개 (+${result.value.toLocaleString()}개)**`;
   }
 
   if (result.type === "repairStone") {
@@ -4333,6 +4480,388 @@ description += `<@${game.player2.id}>님의 말 상태\n${getPieceStatusText(gam
   });
 
   return;
+}
+
+/* ---------------- 주사위 대결 실행 함수 ---------------- */
+async function runDiceBattle(
+  interaction,
+  ownerId,
+  startText = "🎲 **주사위를 굴리기 시작한다밍!**"
+) {
+  const game = diceGames.get(ownerId);
+
+  if (!game) {
+    return interaction.reply({
+      content: "❌ **진행 중인 주사위 대결 정보를 찾을 수 없다밍!**",
+      ephemeral: true
+    });
+  }
+
+  if (game.processing) {
+    return interaction.reply({
+      content: "❌ **이미 주사위를 굴리고 있다밍!**",
+      ephemeral: true
+    });
+  }
+
+  game.processing = true;
+
+  await interaction.deferUpdate();
+
+  try {
+    const user = ensureUser(ownerId);
+
+    // 승리 40% / 패배 40% / 무승부 20%
+    const resultType = getDiceResultType();
+
+    // 정해진 결과에 맞게 주사위 생성
+    const battleResult = createDiceBattleResult(resultType);
+
+    const {
+      userDice,
+      botDice,
+      userTotal,
+      botTotal
+    } = battleResult;
+
+    const revealedUserDice = [];
+    const revealedBotDice = [];
+
+    const formatDice = dice => {
+      if (dice.length === 0) {
+        return "**아직 굴리지 않았다밍!**";
+      }
+
+      return dice
+        .map(number => `🎲 **${number}**`)
+        .join("　·　");
+    };
+
+const createProgressEmbed = statusText => {
+  return new EmbedBuilder()
+    .setColor("#749df5")
+    .setTitle("🎲 주사위 대결")
+    .setAuthor({
+      name: interaction.user.username,
+      iconURL: interaction.user.displayAvatarURL()
+    })
+    .setDescription(
+`🐣 **내 결과**
+${formatDice(revealedUserDice)}
+
+<:sheep:1502713987354198177> **미닝봇 결과**
+${formatDice(revealedBotDice)}
+
+${statusText}
+
+<:money:1489876006893518968> **현재 배팅액:** ${game.currentAmount.toLocaleString()}원`
+    );
+};
+
+    // 기존 버튼 제거 후 연출 시작
+    await interaction.message.edit({
+      embeds: [
+        createProgressEmbed(startText)
+      ],
+      components: []
+    });
+
+    await sleep(1000);
+
+    // 유저 → 미닝봇 순서로 주사위 공개
+    for (let i = 0; i < 3; i++) {
+      revealedUserDice.push(userDice[i]);
+
+      await interaction.message.edit({
+        embeds: [
+          createProgressEmbed(
+            `🐣 **내 ${i + 1}번째 주사위는 ${userDice[i]}이다밍!**`
+          )
+        ],
+        components: []
+      });
+
+      await sleep(1000);
+
+      revealedBotDice.push(botDice[i]);
+
+      await interaction.message.edit({
+        embeds: [
+          createProgressEmbed(
+            `<:sheep:1502713987354198177> **미닝봇의 ${i + 1}번째 주사위는 ${botDice[i]}이다밍!**`
+          )
+        ],
+        components: []
+      });
+
+      await sleep(1000);
+    }
+
+    // =========================
+    // 승리
+    // =========================
+    if (resultType === "win") {
+      const moneyChange = game.currentAmount;
+
+      user.money += moneyChange;
+
+      saveUsers();
+      diceGames.delete(ownerId);
+
+      const resultEmbed = new EmbedBuilder()
+        .setColor("#FFFFFF")
+        .setTitle("🎲 주사위 대결 결과")
+        .setAuthor({
+  name: interaction.user.username
+})
+.setThumbnail(
+  interaction.user.displayAvatarURL({
+    size: 256
+  })
+)
+        .setDescription(
+`🐣 **내 결과**
+${formatDice(userDice)}
+**총합: ${userTotal}**
+
+<:sheep:1502713987354198177> **미닝봇 결과**
+${formatDice(botDice)}
+**총합: ${botTotal}**
+
+**아싸! 미닝봇보다 높은 숫자가 나왔다밍!
+주사위 대결에서 승리하여 ${moneyChange.toLocaleString()}원을 획득했다밍!!**
+
+<:money:1489876006893518968> **잔액:** ${user.money.toLocaleString()}원 (+${moneyChange.toLocaleString()}원)`
+        );
+
+      logGameResult(
+        interaction,
+        `주사위 결과: 승리 / 유저:${userDice.join(",")}(${userTotal}) / 미닝봇:${botDice.join(",")}(${botTotal}) / 배팅:${moneyChange.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+      );
+
+      return interaction.message.edit({
+        embeds: [resultEmbed],
+        components: []
+      });
+    }
+
+    // =========================
+    // 패배
+    // =========================
+    if (resultType === "lose") {
+      const moneyChange = game.currentAmount;
+
+      // 잔액이 부족해도 마이너스 허용
+      user.money -= moneyChange;
+
+      saveUsers();
+      diceGames.delete(ownerId);
+
+      const resultEmbed = new EmbedBuilder()
+        .setColor("#000000")
+        .setTitle("🎲 주사위 대결 결과")
+        .setAuthor({
+  name: interaction.user.username
+})
+.setThumbnail(
+  interaction.user.displayAvatarURL({
+    size: 256
+  })
+)
+        .setDescription(
+`🐣 **내 결과**
+${formatDice(userDice)}
+**총합: ${userTotal}**
+
+<:sheep:1502713987354198177> **미닝봇 결과**
+${formatDice(botDice)}
+**총합: ${botTotal}**
+
+**미닝봇보다 낮은 숫자가 나왔다밍..
+주사위 대결에서 패배하여 ${moneyChange.toLocaleString()}원을 잃었다밍..ㅠ**
+
+<:money:1489876006893518968> **잔액:** ${user.money.toLocaleString()}원 (-${moneyChange.toLocaleString()}원)`
+        );
+
+      logGameResult(
+        interaction,
+        `주사위 결과: 패배 / 유저:${userDice.join(",")}(${userTotal}) / 미닝봇:${botDice.join(",")}(${botTotal}) / 배팅:${moneyChange.toLocaleString()}원 / 잔액:${user.money.toLocaleString()}원`
+      );
+
+      return interaction.message.edit({
+        embeds: [resultEmbed],
+        components: []
+      });
+    }
+
+    // =========================
+    // 무승부
+    // =========================
+    game.processing = false;
+
+    const nextDoubleAmount =
+      game.currentAmount * game.nextMultiplier;
+
+    const drawEmbed = new EmbedBuilder()
+      .setColor("#9CA3AF")
+      .setTitle("🎲 주사위 대결 결과")
+      .setAuthor({
+  name: interaction.user.username
+})
+.setThumbnail(
+  interaction.user.displayAvatarURL({
+    size: 256
+  })
+)
+      .setDescription(
+`🐣 **내 결과**
+${formatDice(userDice)}
+**총합: ${userTotal}**
+
+<:sheep:1502713987354198177> **미닝봇 결과**
+${formatDice(botDice)}
+**총합: ${botTotal}**
+
+**서로의 주사위 총합이 같다밍!
+아래 버튼을 눌러 다음 대결의 배팅 방식을 선택하라밍!**
+
+🔹 **배팅금액 그대로 가기**
+현재 배팅액을 유지한 상태로 다시 대결한다밍!
+
+🔸 **묻고 더블로 가기**
+현재 배팅액에 **${game.nextMultiplier}배**를 적용하여 다시 대결한다밍!
+승리하면 증가한 배팅액만큼 얻고, 패배하면 그대로 잃는다밍!
+
+<:money:1489876006893518968> **현재 배팅액:** ${game.currentAmount.toLocaleString()}원
+**묻고 더블 선택 시:** ${nextDoubleAmount.toLocaleString()}원`
+      );
+
+    const drawRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`dice_same_${ownerId}`)
+        .setLabel("배팅금액 그대로 가기")
+        .setStyle(ButtonStyle.Secondary),
+
+      new ButtonBuilder()
+        .setCustomId(`dice_double_${ownerId}`)
+        .setLabel("묻고 더블로 가기")
+        .setStyle(ButtonStyle.Danger)
+    );
+
+    logGameResult(
+      interaction,
+      `주사위 결과: 무승부 / 유저:${userDice.join(",")}(${userTotal}) / 미닝봇:${botDice.join(",")}(${botTotal}) / 현재 배팅:${game.currentAmount.toLocaleString()}원 / 다음 더블:${nextDoubleAmount.toLocaleString()}원`
+    );
+
+    return interaction.message.edit({
+      embeds: [drawEmbed],
+      components: [drawRow]
+    });
+
+  } catch (error) {
+    console.error("주사위 대결 오류:", error);
+
+    diceGames.delete(ownerId);
+
+    return interaction.message.edit({
+      content: "❌ **주사위 대결을 진행하는 중 오류가 발생했다밍!**",
+      embeds: [],
+      components: []
+    }).catch(() => {});
+  }
+}
+
+
+/* ---------------- 처음 주사위 굴리기 버튼 ---------------- */
+if (interaction.customId.startsWith("dice_roll_")) {
+  const ownerId =
+    interaction.customId.replace("dice_roll_", "");
+
+  if (interaction.user.id !== ownerId) {
+    return interaction.reply({
+      content: "❌ **이 주사위 대결은 명령어를 실행한 사람만 진행할 수 있다밍!**",
+      ephemeral: true
+    });
+  }
+
+  return runDiceBattle(
+    interaction,
+    ownerId,
+    "🎲 **주사위를 굴리기 시작한다밍!**"
+  );
+}
+
+
+/* ---------------- 주사위 무승부 선택 버튼 ---------------- */
+if (
+  interaction.customId.startsWith("dice_same_") ||
+  interaction.customId.startsWith("dice_double_")
+) {
+  const isDouble =
+    interaction.customId.startsWith("dice_double_");
+
+  const ownerId = isDouble
+    ? interaction.customId.replace("dice_double_", "")
+    : interaction.customId.replace("dice_same_", "");
+
+  // 주사위 대결을 시작한 사람만 선택 가능
+  if (interaction.user.id !== ownerId) {
+    return interaction.reply({
+      content: "❌ **이 주사위 대결은 명령어를 실행한 사람만 진행할 수 있다밍!**",
+      ephemeral: true
+    });
+  }
+
+  const game = diceGames.get(ownerId);
+
+  if (!game) {
+    return interaction.reply({
+      content: "❌ **진행 중인 주사위 대결 정보를 찾을 수 없다밍!**",
+      ephemeral: true
+    });
+  }
+
+  if (game.processing) {
+    return interaction.reply({
+      content: "❌ **이미 주사위 대결을 진행하고 있다밍!**",
+      ephemeral: true
+    });
+  }
+
+  let startText;
+
+  // =========================
+  // 묻고 더블로 가기
+  // =========================
+  if (isDouble) {
+    const appliedMultiplier = game.nextMultiplier;
+
+    // 현재 배팅액에 현재 배수 적용
+    game.currentAmount *= appliedMultiplier;
+
+    // 다음에 적용할 배수는 두 배 증가
+    game.nextMultiplier *= 2;
+
+    startText =
+      `🔸 **묻고 더블로 간다밍!**\n` +
+      `현재 배팅액에 **${appliedMultiplier}배**가 적용되어\n` +
+      `이번 대결의 배팅액은 **${game.currentAmount.toLocaleString()}원**이다밍!`;
+  }
+
+  // =========================
+  // 배팅금액 그대로 가기
+  // =========================
+  else {
+    startText =
+      `🔹 **배팅금액 그대로 다시 간다밍!**\n` +
+      `이번 대결도 **${game.currentAmount.toLocaleString()}원**을 걸고 진행한다밍!`;
+  }
+
+  return runDiceBattle(
+    interaction,
+    ownerId,
+    startText
+  );
 }
 
 /* ---------------- 가위바위보 버튼 ---------------- */
@@ -6367,7 +6896,7 @@ const isMaintenance =
   (hour === 23 && minute >= 50) ||
   (hour === 0 && minute < 10);
 
-if (isMaintenance) {
+if (isMaintenance && !isAdmin(interaction.user.id)) {
   return interaction.reply({
     content: "**현재 미닝세 정산 및 점검이 진행 중이다밍! 00:10분 이후에 다시 이용해달라밍!**",
     ephemeral: true
@@ -7452,6 +7981,81 @@ if (commandName === "가위바위보") {
     embeds: [embed],
     components: [row]
   });
+}
+
+/* ---------------- 주사위 ---------------- */
+if (commandName === "주사위") {
+  // 인터랙션 만료 방지를 위해 가장 먼저 응답 예약
+  await interaction.deferReply();
+
+  const user = ensureUser(id);
+  const amount = interaction.options.getInteger("배팅액");
+
+  if (!amount || amount < 1) {
+    return interaction.editReply({
+      content: "❌ **배팅액은 1원 이상이어야 한다밍!**"
+    });
+  }
+
+  if (user.money < amount) {
+    return interaction.editReply({
+      content: "❌ **배팅할 금액이 부족하다밍!**"
+    });
+  }
+
+  if (diceGames.has(id)) {
+    return interaction.editReply({
+      content: "❌ **이미 진행 중인 주사위 대결이 있다밍!**"
+    });
+  }
+
+  diceGames.set(id, {
+    userId: id,
+    amount,
+    currentAmount: amount,
+    nextMultiplier: 2,
+    processing: false
+  });
+
+  const embed = new EmbedBuilder()
+    .setColor("#749df5")
+    .setTitle("🎲 주사위 대결")
+    .setThumbnail(
+      interaction.user.displayAvatarURL({
+        size: 256
+      })
+    )
+    .setDescription(
+`🎲 **미닝봇과 주사위 대결을 시작한다밍!**
+
+**나와 미닝봇이 주사위를 3번씩 굴려서
+나온 숫자의 총합이 더 높은 쪽이 승리한다밍!**
+
+과연 행운의 주사위는 누구의 편일까밍?
+
+<:money:1489876006893518968> **배팅액:** ${amount.toLocaleString()}원
+
+아래 **굴리기** 버튼을 눌러 주사위를 굴려보라밍!`
+    );
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`dice_roll_${id}`)
+      .setLabel("굴리기")
+      .setEmoji("🎲")
+      .setStyle(ButtonStyle.Primary)
+  );
+
+  try {
+    return await interaction.editReply({
+      embeds: [embed],
+      components: [row]
+    });
+
+  } catch (error) {
+    diceGames.delete(id);
+    throw error;
+  }
 }
 
 /* ---------------- 파산신청 ---------------- */

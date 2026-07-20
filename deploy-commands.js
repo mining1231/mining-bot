@@ -140,10 +140,6 @@ new SlashCommandBuilder()
   .setDescription("전리품을 획득합니다.(쿨타임 3시간)"),
 
   new SlashCommandBuilder()
-  .setName("복권")
-  .setDescription("복권은 쿨타임1시간입니다."),
-
-  new SlashCommandBuilder()
   .setName("출석체크")
   .setDescription("출석체크는 하루에 1회 가능합니다."),
 
@@ -233,6 +229,17 @@ new SlashCommandBuilder()
       .setDescription("배팅할 금액")
       .setRequired(true)
       .setMinValue(1000)
+  ),
+
+  new SlashCommandBuilder()
+  .setName("주사위")
+  .setDescription("미닝봇과 주사위 대결을 합니다.")
+  .addIntegerOption(option =>
+    option
+      .setName("배팅액")
+      .setDescription("배팅할 금액")
+      .setRequired(true)
+      .setMinValue(1)
   ),
 
   new SlashCommandBuilder()
